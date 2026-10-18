@@ -1,0 +1,6 @@
+{
+  "appId": "com.example.nfsnav",
+  "appName": "NFS-Nav",
+  "webDir": "dist",
+  "backgroundColor": "#07080d"
+}

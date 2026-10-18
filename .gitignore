@@ -1,0 +1,7 @@
+node_modules/
+dist/
+dist-usb/
+android/build/
+.env
+.env.local
+*.log

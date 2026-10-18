@@ -1,0 +1,9 @@
+html, body { margin: 0; height: 100%; background: #07080d; overflow: hidden; font-family: sans-serif; }
+#map { position: absolute; inset: 0; }
+#fallback { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #e8e8f0; background: #07080d; }
+#fallback[hidden] { display: none; }
+#debug { position: absolute; left: 8px; bottom: 8px; color: #7ff; font: 12px monospace; text-shadow: 0 0 4px #000; pointer-events: none; }
+.car-marker { width: 28px; height: 28px; }
+.car-marker svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 6px #0ff) drop-shadow(0 0 12px #f0f); }
+.maplibregl-ctrl-attrib { background: rgba(7, 8, 13, 0.7) !important; color: #889 !important; }
+.maplibregl-ctrl-attrib a { color: #aab !important; }
