@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@capacitor/core": "^6.2.2",
+    "abortcontroller-polyfill": "^1.7.8",
     "maplibre-gl": "2.4.0",
     "resize-observer-polyfill": "^1.5.1"
   },

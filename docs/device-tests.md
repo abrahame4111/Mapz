@@ -11,3 +11,4 @@ appears blank there. Verify in a normal browser (or shim rAF with timers).
 - WebView UA: Chrome/61.0.3163.98 (device 8227L_demo, Android 9). webgl1=true, webgl2=false, screen 1024x541, dpr 1.
 - Failures seen with MapLibre 4.7.1 + modern/legacy split: SyntaxError on import() (modern bundle), "Unexpected token ." (worker), ResizeObserver undefined.
 - Fix: legacy-only bundle, ResizeObserver polyfill, MapLibre 2.4.0 CSP build with separate worker. Re-test pending on device.
+- Second device run (MapLibre 2.4 CSP build): marker + speed rendered; map blank with "ReferenceError: AbortController is not defined". Fix: AbortController polyfill in page and worker. Re-test pending.

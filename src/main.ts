@@ -1,19 +1,14 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
+import './polyfills'; // must stay before anything that touches the missing APIs
 import { AttributionControl, Map as MlMap } from './map/maplibre';
 import type { MapType } from './map/maplibre';
-import ResizeObserverPolyfill from 'resize-observer-polyfill';
 import { config } from './core/config';
 import { vehicleStore } from './core/vehicle';
 import { Simulator } from './data/simulator';
 import { buildBaseStyle } from './map/style';
 import { CarMarker } from './map/carMarker';
 import { PoseInterpolator } from './map/interpolate';
-
-// Chrome 61 (head unit WebView) has no ResizeObserver, which MapLibre needs.
-if (!('ResizeObserver' in window)) {
-  (window as unknown as { ResizeObserver: unknown }).ResizeObserver = ResizeObserverPolyfill;
-}
 
 function hasWebGL(): boolean {
   try {
