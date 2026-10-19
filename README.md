@@ -6,7 +6,7 @@ A stylized, game-inspired **minimap for a car head unit**. NFS-Nav shows a dark,
 
 *Dark OpenStreetMap-based map with the car marker (simulator mode, Stockholm).*
 
-> **Status: early development (roadmap step 1 of 11).** The app currently runs on a built-in simulator, not real GPS. A debug APK builds, but installing it on the head unit is blocked by the unit's firmware (see [Known issues](#known-issues)).
+> **Status: early development (roadmap step 1 of 11).** The app currently runs on a built-in simulator, not real GPS. A debug APK builds and installs on the head unit once its "closed system" option is switched off (see [Known issues](#known-issues)).
 
 ## Features (so far)
 
@@ -64,7 +64,7 @@ src/
 
 ## Known issues
 
-- The Key Largo 970 refuses to install any third-party APK ("App not installed"), including known-good apps. A possible cause is a "closed system" switch in the unit's Factory Settings; this is being investigated. Findings are tracked in [CLAUDE.md](CLAUDE.md) and [docs/device-tests.md](docs/device-tests.md).
+- The Key Largo 970 blocks third-party APKs by default. Installing works after switching off the "closed system" option in Settings > General > Factory Settings > Other settings. Details in [CLAUDE.md](CLAUDE.md).
 - `maplibre-gl` is pinned to 4.x for old-WebView (WebGL1) compatibility. `npm audit` reports an HTML sanitizer advisory in this version; the app does not render untrusted HTML.
 
 ## Safety

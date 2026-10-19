@@ -164,7 +164,7 @@ npm run pack:usb     # copy APK to ./dist-usb/nfs-nav.apk (themes not yet)
 
 ## 9. Open questions (update as answered)
 
-- [ ] Head unit: **Blaupunkt Key Largo 970, Android 9** (confirmed). Still unknown: WebView version, screen resolution. Launcher is locked down: no browser or Play Store. Sideload of our debug APK via File Manager failed with "App not installed" (cause unknown; needs adb error)
+- [x] Head unit: **Blaupunkt Key Largo 970, Android 9** (firmware A50-OAE-V1.0.45R1-210401_1626, MCU A50M01-IA03A51.H3, 2 GB RAM, 16 GB). Still unknown: WebView version, screen resolution. **Sideloading fix:** the unit refused ALL third-party APKs ("App not installed") until **Settings > General > Factory Settings > Other settings > "closed system" was switched off**. No browser or Play Store on the launcher
 - [ ] Does the unit have built-in GPS? Probably yes: GPS status icon + built-in "GPS Test" app (unverified; test in step 5)
 - [ ] Can the unit join the phone hotspot, and is its browser/WebView WebGL-capable?
 - [ ] Preferred tile provider and budget (free tier vs self-hosted PMTiles)
