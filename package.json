@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "android:sync": "npm run build && cap sync android",
-    "android:apk": "npm run android:sync && cd android && gradlew.bat assembleDebug",
+    "android:apk": "npm run android:sync && node tools/package-usb/gradle.mjs assembleDebug",
     "pack:usb": "node tools/package-usb/pack.mjs"
   },
   "dependencies": {

@@ -12,6 +12,19 @@
       <p>This device's WebView does not support WebGL.</p>
     </div>
     <div id="debug"></div>
+    <pre id="diag"></pre>
+    <!-- Plain ES5 on purpose: must run even on a WebView too old for the app bundle. -->
+    <script>
+      (function () {
+        var el = document.getElementById("diag");
+        window.__diag = function (m) { el.textContent += m + "\n"; el.style.display = "block"; };
+        window.__diagHide = function () { el.style.display = "none"; };
+        window.__diag("NFS-Nav boot | " + navigator.userAgent);
+        window.onerror = function (msg, src, line) { window.__diag("ERROR: " + msg + " @" + String(src).split("/").pop() + ":" + line); };
+        window.addEventListener("unhandledrejection", function (e) { window.__diag("REJECTED: " + (e.reason && e.reason.message || e.reason)); });
+        setTimeout(function () { if (!window.__appStarted) window.__diag("App script did not start (WebView too old?)"); }, 5000);
+      })();
+    </script>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

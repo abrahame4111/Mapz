@@ -17,7 +17,21 @@ function hasWebGL(): boolean {
   }
 }
 
+// Boot diagnostics are drawn on screen because the head unit has no dev tools. See index.html.
+type DiagWindow = { __diag?: (m: string) => void; __diagHide?: () => void; __appStarted?: boolean };
+const dw = window as unknown as DiagWindow;
+const diag = (m: string): void => dw.__diag?.(m);
+
+function describeWebGL(): string {
+  const c = document.createElement('canvas');
+  const gl2 = !!c.getContext('webgl2');
+  const gl1 = !!(document.createElement('canvas').getContext('webgl') || document.createElement('canvas').getContext('experimental-webgl'));
+  return 'webgl1=' + gl1 + ' webgl2=' + gl2 + ' screen=' + innerWidth + 'x' + innerHeight + ' dpr=' + devicePixelRatio;
+}
+
 function boot(): void {
+  dw.__appStarted = true;
+  diag(describeWebGL());
   if (!hasWebGL()) {
     document.getElementById('fallback')!.hidden = false;
     return;
@@ -33,7 +47,14 @@ function boot(): void {
     fadeDuration: 0,
   });
 
-  map.on('error', (e) => console.error('[map]', e.error?.message ?? e));
+  map.on('error', (e) => {
+    console.error('[map]', e.error?.message ?? e);
+    diag('MAP ERROR: ' + (e.error?.message ?? e));
+  });
+  map.on('load', () => {
+    diag('map loaded');
+    setTimeout(() => dw.__diagHide?.(), 4000);
+  });
 
   // Dev-only handle for console debugging.
   if (import.meta.env.DEV) (window as unknown as { __map: MlMap }).__map = map;
