@@ -1,8 +1,13 @@
 import { defineConfig } from 'vite';
 import legacy from '@vitejs/plugin-legacy';
+import { readFileSync } from 'node:fs';
+
+// Iteration number handed to the head unit; see build-number.txt and CLAUDE.md.
+const buildNumber = Number(readFileSync('build-number.txt', 'utf8').trim());
 
 export default defineConfig({
   // Relative base so the bundle also works from file:// / Capacitor's local server.
+  define: { __BUILD_NUMBER__: JSON.stringify(buildNumber) },
   base: './',
   plugins: [
     // The head unit WebView is Chrome 61 (measured on the Key Largo 970). Chrome 61 understands

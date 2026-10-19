@@ -159,7 +159,8 @@ npm run build        # typecheck + production web build (modern + legacy bundles
 npm test             # unit tests (vitest)
 npm run android:sync # build web + capacitor sync
 npm run android:apk  # build debug APK (needs JDK 17 + Android SDK; android/local.properties sdk.dir)
-npm run pack:usb     # copy APK to ./dist-usb/nfs-nav.apk (themes not yet)
+npm run pack:usb     # copy APK to ./dist-usb/nfs-nav-build-N.apk (themes not yet)
+npm run build:bump   # increment build-number.txt for a new iteration
 ```
 
 ## 9. Open questions (update as answered)
@@ -172,6 +173,8 @@ npm run pack:usb     # copy APK to ./dist-usb/nfs-nav.apk (themes not yet)
 - [ ] App name and branding (avoid trademarked names)
 
 ## 10. Instructions for Claude Code
+
+- **Build numbering:** every APK handed to the head unit gets the next iteration number. `build-number.txt` holds the current one; run `npm run build:bump` before building a new iteration, then `npm run android:apk` and `npm run pack:usb`. The number is the APK versionCode ("build N"), the file name (`dist-usb/nfs-nav-build-N.apk`), and is shown on screen. Build 1 = first APK, 2 = targetSdk 28, 3 = diagnostics, 4 = Chrome 61 legacy bundle + MapLibre 2.4, 5 = AbortController polyfills. Name sent files and captions with the build number.
 
 - Start every session by reading this file. If a decision changes, update the relevant section.
 - Work in small steps. After each step the app should still run on the laptop with the simulator.

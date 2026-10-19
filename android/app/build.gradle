@@ -7,8 +7,10 @@ android {
         applicationId "com.example.nfsnav"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        // buildNumber comes from build-number.txt via tools/package-usb/gradle.mjs (-PbuildNumber=N)
+        def buildNumber = project.hasProperty("buildNumber") ? project.property("buildNumber").toString() : "1"
+        versionCode buildNumber.toInteger()
+        versionName "build ${buildNumber}"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

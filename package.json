@@ -11,7 +11,8 @@
     "test": "vitest run",
     "android:sync": "npm run build && cap sync android",
     "android:apk": "npm run android:sync && node tools/package-usb/gradle.mjs assembleDebug",
-    "pack:usb": "node tools/package-usb/pack.mjs"
+    "pack:usb": "node tools/package-usb/pack.mjs",
+    "build:bump": "node tools/package-usb/bump.mjs"
   },
   "dependencies": {
     "@capacitor/core": "^6.2.2",

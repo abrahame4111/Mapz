@@ -33,6 +33,7 @@ function describeWebGL(): string {
 
 function boot(): void {
   dw.__appStarted = true;
+  diag('build ' + __BUILD_NUMBER__);
   diag(describeWebGL());
   if (!hasWebGL()) {
     document.getElementById('fallback')!.hidden = false;
@@ -91,7 +92,7 @@ function boot(): void {
     map.jumpTo({ center: [pose.lng, pose.lat] });
     // Touch the DOM only when the text changes.
     const v = vehicleStore.get();
-    const text = `${Math.round(v.speed)} km/h${v.hasFix ? '' : '  NO GPS FIX'}`;
+    const text = `build ${__BUILD_NUMBER__} | ${Math.round(v.speed)} km/h${v.hasFix ? '' : '  NO GPS FIX'}`;
     if (text !== lastText) {
       debug.textContent = text;
       lastText = text;
