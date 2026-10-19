@@ -10,10 +10,14 @@ export const config = {
     lat: Number(env.VITE_START_LAT ?? 59.3293),
     lng: Number(env.VITE_START_LNG ?? 18.0686),
   },
-  map: { zoom: 16 },
+  map: { zoom: 16, minZoom: 10, maxZoom: 19 },
   camera: {
     /** Time constant of the map rotation; lower = snappier, higher = calmer. */
     bearingTauMs: 500,
+    /** Zoom button press moves the target by this many levels. */
+    zoomStep: 1,
+    /** Smoothing of the animated zoom after a button press. */
+    zoomTauMs: 150,
   },
   /** Render cap; head unit target is 30 fps (options 30/20/15). */
   fpsCap: 30,

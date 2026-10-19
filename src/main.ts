@@ -12,7 +12,9 @@ import type { VehicleDataSource } from './data/types';
 import { buildBaseStyle } from './map/style';
 import { CarMarker } from './map/carMarker';
 import { PoseInterpolator } from './map/interpolate';
-import { smoothBearing } from './map/camera';
+import { smoothBearing, smoothValue, stepZoom } from './map/camera';
+import { bindZoomControls } from './hud/zoomControls';
+import { loadZoom, saveZoom } from './core/zoomStore';
 
 function hasWebGL(): boolean {
   try {
@@ -48,11 +50,27 @@ function boot(): void {
     container: 'map',
     style: buildBaseStyle(),
     center: [config.start.lng, config.start.lat],
-    zoom: config.map.zoom,
-    interactive: false, // driver display: no touch handling that needs attention (CLAUDE.md §6)
+    zoom: loadZoom(),
+    minZoom: config.map.minZoom,
+    maxZoom: config.map.maxZoom,
+    // The camera follows the car, so touch may only zoom. Everything else stays off; the car stays centred,
+    // so zoom is anchored on the screen centre. Pinch-zoom is allowed while moving (no text or menus involved).
+    interactive: true,
+    dragPan: false,
+    dragRotate: false,
+    touchPitch: false,
+    boxZoom: false,
+    keyboard: false,
+    doubleClickZoom: false,
+    touchZoomRotate: false, // enabled below with a screen-centre anchor (maplibre 2.x option types are boolean only)
+    scrollZoom: false,
     attributionControl: false, // added below as a compact control (maplibre 2.x API)
     fadeDuration: 0,
   });
+
+  map.touchZoomRotate.enable({ around: 'center' });
+  map.scrollZoom.enable({ around: 'center' }); // mouse wheel on the laptop
+  map.touchZoomRotate.disableRotation(); // pinch zooms only; rotation is the camera's job
 
   // Attribution is required by the OSM/OpenFreeMap licences; keep it visible.
   map.addControl(new AttributionControl({ compact: true }));
@@ -112,6 +130,37 @@ function boot(): void {
   const northUp = params.has('north');
   let bearing: number | undefined;
   let lastFrameAt = 0;
+  // Zoom: pinch is handled by MapLibre; + / - buttons set a target that we animate here, because our per-frame
+  // jumpTo() would cancel a normal easeTo().
+  let zoomTarget: number | undefined;
+  bindZoomControls((dir) => {
+    zoomTarget = stepZoom(zoomTarget ?? map.getZoom(), dir, config.camera.zoomStep, config.map.minZoom, config.map.maxZoom);
+  });
+  // A pinch (user input) takes over from any button animation in progress.
+  map.on('zoomstart', (e) => {
+    if ((e as { originalEvent?: unknown }).originalEvent) zoomTarget = undefined;
+  });
+  // MapLibre cancels an in-progress pinch whenever we call jumpTo(), so the follow-camera pauses while two
+  // fingers are down (and briefly after, plus after a mouse-wheel zoom on the laptop), then resumes.
+  let cameraPausedUntil = 0;
+  const gestureEl = map.getCanvasContainer();
+  const onTouch = (e: TouchEvent): void => {
+    cameraPausedUntil = e.touches.length >= 2 ? Infinity : performance.now() + 250;
+  };
+  gestureEl.addEventListener('touchstart', onTouch, { passive: true });
+  gestureEl.addEventListener('touchmove', onTouch, { passive: true });
+  gestureEl.addEventListener('touchend', onTouch, { passive: true });
+  gestureEl.addEventListener('touchcancel', onTouch, { passive: true });
+  gestureEl.addEventListener('wheel', () => { cameraPausedUntil = performance.now() + 250; }, { passive: true });
+  // Remember the chosen zoom (cheap check every 2 s instead of writing on every frame).
+  let savedZoom = map.getZoom();
+  setInterval(() => {
+    const z = map.getZoom();
+    if (Math.abs(z - savedZoom) >= 0.05) {
+      savedZoom = z;
+      saveZoom(z);
+    }
+  }, 2000);
   const frame = (now: number): void => {
     requestAnimationFrame(frame);
     if (now - last < minFrameMs) return;
@@ -136,7 +185,16 @@ function boot(): void {
     const dt = lastFrameAt ? now - lastFrameAt : 0;
     lastFrameAt = now;
     bearing = bearing === undefined ? pose.heading : smoothBearing(bearing, pose.heading, dt, config.camera.bearingTauMs);
-    map.jumpTo({ center: [pose.lng, pose.lat], bearing: northUp ? 0 : bearing });
+    if (now < cameraPausedUntil) return; // a gesture is in progress; do not fight it
+    let zoom: number | undefined;
+    if (zoomTarget !== undefined) {
+      zoom = smoothValue(map.getZoom(), zoomTarget, dt, config.camera.zoomTauMs);
+      if (Math.abs(zoomTarget - zoom) < 0.01) {
+        zoom = zoomTarget;
+        zoomTarget = undefined;
+      }
+    }
+    map.jumpTo(zoom === undefined ? { center: [pose.lng, pose.lat], bearing: northUp ? 0 : bearing } : { center: [pose.lng, pose.lat], bearing: northUp ? 0 : bearing, zoom });
   };
   requestAnimationFrame(frame);
 }

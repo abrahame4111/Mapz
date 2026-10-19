@@ -16,3 +16,5 @@ appears blank there. Verify in a normal browser (or shim rAF with timers).
 - Build 6: real GPS added; device test pending (needs location permission prompt answered, GPS fix outdoors).
 - Build 6 device run: real GPS confirmed (marker on the actual road, position from the unit).
 - Build 7: heading-up map rotation added; device test pending.
+- Build 7 device run: heading-up rotation confirmed working smoothly.
+- Build 8: pinch zoom + on-screen +/- buttons; device test pending (touch pinch on the unit's screen, button size/position).

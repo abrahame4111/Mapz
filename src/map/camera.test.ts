@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { smoothBearing } from './camera';
+import { clamp, smoothBearing, smoothValue, stepZoom } from './camera';
 
 const offset = (deg: number): number => Math.min(deg, 360 - deg);
 
@@ -32,5 +32,26 @@ describe('smoothBearing', () => {
     for (let i = 0; i < 12; i++) small = smoothBearing(small, 90, 100, 400);
     const big = smoothBearing(0, 90, 1200, 400);
     expect(small).toBeCloseTo(big, 5);
+  });
+});
+
+
+describe('zoom helpers', () => {
+  it('steps and clamps zoom', () => {
+    expect(stepZoom(16, 1, 1, 10, 19)).toBe(17);
+    expect(stepZoom(16.4, -1, 1, 10, 19)).toBeCloseTo(15.4);
+    expect(stepZoom(19, 1, 1, 10, 19)).toBe(19);
+    expect(stepZoom(10.5, -1, 1, 10, 19)).toBe(10);
+    expect(clamp(5, 0, 3)).toBe(3);
+  });
+
+  it('smooths a value toward its target without overshoot', () => {
+    expect(smoothValue(10, 20, 0, 150)).toBe(10);
+    let z = 16;
+    for (let i = 0; i < 60; i++) {
+      z = smoothValue(z, 17, 33, 150);
+      expect(z).toBeLessThanOrEqual(17);
+    }
+    expect(z).toBeCloseTo(17, 2);
   });
 });

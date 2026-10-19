@@ -12,6 +12,7 @@ A stylized, game-inspired **minimap for a car head unit**. NFS-Nav shows a dark,
 
 - Dark vector map (MapLibre GL JS, OpenFreeMap tiles, OpenStreetMap data) in a custom neon-on-dark style
 - Heading-up camera: the map rotates so your direction of travel always points up (smoothed; `?north` for north-up)
+- Pinch-to-zoom and large + / - buttons (bottom right); the chosen zoom is remembered
 - Glowing car marker that rotates with heading
 - Real GPS from the device (`navigator.geolocation`) with accuracy filtering, heading smoothing and a "GPS signal lost" banner
 - Simulated drive on a loop with varying speed and optional GPS dropout (`?dropout`)
