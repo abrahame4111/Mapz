@@ -11,8 +11,8 @@ html, body { margin: 0; height: 100%; background: #07080d; overflow: hidden; fon
 #banner { display: none; position: absolute; left: 50%; bottom: 36px; transform: translateX(-50%); padding: 8px 18px; border-radius: 6px; color: #fff; background: rgba(120, 20, 60, 0.85); font: 600 20px sans-serif; z-index: 5; pointer-events: none; }
 /* Zoom buttons: bottom right, stacked. Sits above the attribution control. No flex gap / min(): unsupported in Chrome 61. */
 #zoom-controls { position: absolute; right: 16px; bottom: 64px; z-index: 6; display: flex; flex-direction: column; }
-#zoom-controls button { width: 72px; height: 72px; padding: 0; margin: 0 0 12px 0; border: 2px solid #0ff; border-radius: 12px; background: rgba(7, 8, 13, 0.75); color: #0ff; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+#zoom-controls button { width: 50px; height: 50px; padding: 0; margin: 0 0 8px 0; border: 2px solid #b066ff; border-radius: 9px; background: rgba(7, 8, 13, 0.75); color: #b066ff; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 #zoom-controls button:last-child { margin-bottom: 0; }
-#zoom-controls button:active { background: rgba(0, 255, 255, 0.3); }
-#zoom-controls svg { width: 36px; height: 36px; fill: none; stroke: #0ff; stroke-width: 3; stroke-linecap: round; }
-@media (max-height: 480px) { #zoom-controls button { width: 60px; height: 60px; } }
+#zoom-controls button:active { background: rgba(176, 102, 255, 0.35); }
+#zoom-controls svg { width: 25px; height: 25px; fill: none; stroke: #b066ff; stroke-width: 3; stroke-linecap: round; }
+@media (max-height: 480px) { #zoom-controls button { width: 42px; height: 42px; } }
