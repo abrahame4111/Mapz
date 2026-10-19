@@ -6,12 +6,13 @@ A stylized, game-inspired **minimap for a car head unit**. NFS-Nav shows a dark,
 
 *Dark OpenStreetMap-based map with the car marker (simulator mode, Stockholm).*
 
-> **Status: early development (roadmap step 1 of 11).** The app currently runs on a built-in simulator, not real GPS. A debug APK builds and installs on the head unit once its "closed system" option is switched off (see [Known issues](#known-issues)).
+> **Status: early development (roadmap step 5 of 11).** The map runs on the head unit. The installed app uses the unit's GPS; the desktop dev server uses a simulator (use `?gps` to try browser geolocation). A debug APK builds and installs on the head unit once its "closed system" option is switched off (see [Known issues](#known-issues)).
 
 ## Features (so far)
 
 - Dark vector map (MapLibre GL JS, OpenFreeMap tiles, OpenStreetMap data) in a custom neon-on-dark style
 - Glowing car marker that rotates with heading
+- Real GPS from the device (`navigator.geolocation`) with accuracy filtering, heading smoothing and a "GPS signal lost" banner
 - Simulated drive on a loop with varying speed and optional GPS dropout (`?dropout`)
 - Smooth motion: ~1 Hz position samples interpolated every frame, 30 fps cap
 - WebGL feature detection with a fallback screen

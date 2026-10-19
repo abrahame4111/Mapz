@@ -12,3 +12,5 @@ appears blank there. Verify in a normal browser (or shim rAF with timers).
 - Failures seen with MapLibre 4.7.1 + modern/legacy split: SyntaxError on import() (modern bundle), "Unexpected token ." (worker), ResizeObserver undefined.
 - Fix: legacy-only bundle, ResizeObserver polyfill, MapLibre 2.4.0 CSP build with separate worker. Re-test pending on device.
 - Build 4 device run (MapLibre 2.4 CSP build): marker + speed rendered; map blank with "ReferenceError: AbortController is not defined". Fix: AbortController polyfill in page and worker. Build 5 fixes this; re-test pending.
+- Build 5 device run: map renders on the unit (dark vector map, marker, attribution). Simulator only.
+- Build 6: real GPS added; device test pending (needs location permission prompt answered, GPS fix outdoors).

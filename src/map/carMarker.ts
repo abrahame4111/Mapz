@@ -18,6 +18,10 @@ export class CarMarker {
       .addTo(map);
   }
 
+  setVisible(visible: boolean): void {
+    this.marker.getElement().style.display = visible ? '' : 'none';
+  }
+
   update(lng: number, lat: number, heading: number): void {
     this.marker.setLngLat([lng, lat]).setRotation(heading);
   }

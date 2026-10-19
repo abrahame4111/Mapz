@@ -6,6 +6,9 @@ import type { MapType } from './map/maplibre';
 import { config } from './core/config';
 import { vehicleStore } from './core/vehicle';
 import { Simulator } from './data/simulator';
+import { GpsSource } from './data/gps';
+import { chooseSource } from './data/select';
+import type { VehicleDataSource } from './data/types';
 import { buildBaseStyle } from './map/style';
 import { CarMarker } from './map/carMarker';
 import { PoseInterpolator } from './map/interpolate';
@@ -68,35 +71,63 @@ function boot(): void {
   const car = new CarMarker(map, config.start.lng, config.start.lat);
   const interp = new PoseInterpolator();
   const debug = document.getElementById('debug')!;
+  const banner = document.getElementById('banner')!;
 
   // Data -> store. Everything downstream reads the store only.
   const params = new URLSearchParams(location.search);
-  const source = new Simulator({
-    start: config.start,
-    dropout: params.has('dropout') ? { afterS: 20, durationS: 8, everyS: 60 } : undefined,
+  const native = !!(window as unknown as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor?.isNativePlatform?.();
+  const kind = chooseSource(location.search, native);
+  let statusText = kind === 'gps' ? 'Waiting for GPS...' : '';
+  const source: VehicleDataSource =
+    kind === 'gps'
+      ? new GpsSource((msg) => {
+          statusText = msg;
+          diag(msg);
+        })
+      : new Simulator({
+          start: config.start,
+          dropout: params.has('dropout') ? { afterS: 20, durationS: 8, everyS: 60 } : undefined,
+        });
+  diag('source: ' + kind);
+  car.setVisible(kind === 'sim'); // with real GPS, show the car only once we actually have a position
+  let firstFix = true;
+  vehicleStore.subscribe((s) => {
+    if (firstFix && s.hasFix) {
+      firstFix = false;
+      statusText = '';
+      car.setVisible(true);
+      diag('first fix ' + s.lat.toFixed(5) + ',' + s.lng.toFixed(5));
+    }
+    interp.push(s, performance.now());
   });
   source.start((s) => vehicleStore.set(s));
-  vehicleStore.subscribe((s) => interp.push(s, performance.now()));
 
   // Render loop with an fps cap (30 on the head unit).
   const minFrameMs = 1000 / config.fpsCap - 1;
   let last = 0;
   let lastText = '';
+  let lastBanner = '';
   const frame = (now: number): void => {
     requestAnimationFrame(frame);
     if (now - last < minFrameMs) return;
     last = now;
-    const pose = interp.pose(now);
-    if (!pose) return;
-    car.update(pose.lng, pose.lat, pose.heading);
-    map.jumpTo({ center: [pose.lng, pose.lat] });
-    // Touch the DOM only when the text changes.
     const v = vehicleStore.get();
-    const text = `build ${__BUILD_NUMBER__} | ${Math.round(v.speed)} km/h${v.hasFix ? '' : '  NO GPS FIX'}`;
+    // Touch the DOM only when the text changes. No fix -> banner (last known position stays on the map).
+    const bannerText = v.hasFix ? '' : v.timestamp > 0 ? 'GPS signal lost' : statusText;
+    if (bannerText !== lastBanner) {
+      banner.textContent = bannerText;
+      banner.style.display = bannerText ? 'block' : 'none';
+      lastBanner = bannerText;
+    }
+    const text = `build ${__BUILD_NUMBER__} | ${kind.toUpperCase()} | ${Math.round(v.speed)} km/h`;
     if (text !== lastText) {
       debug.textContent = text;
       lastText = text;
     }
+    const pose = interp.pose(now);
+    if (!pose) return;
+    car.update(pose.lng, pose.lat, pose.heading);
+    map.jumpTo({ center: [pose.lng, pose.lat] });
   };
   requestAnimationFrame(frame);
 }

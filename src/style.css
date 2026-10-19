@@ -8,3 +8,4 @@ html, body { margin: 0; height: 100%; background: #07080d; overflow: hidden; fon
 .maplibregl-ctrl-attrib { background: rgba(7, 8, 13, 0.7) !important; color: #889 !important; }
 .maplibregl-ctrl-attrib a { color: #aab !important; }
 #diag { display: none; position: absolute; left: 8px; top: 8px; right: 8px; margin: 0; padding: 6px; color: #fff; background: rgba(0,0,0,0.75); font: 13px monospace; white-space: pre-wrap; word-break: break-all; z-index: 10; pointer-events: none; }
+#banner { display: none; position: absolute; left: 50%; bottom: 36px; transform: translateX(-50%); padding: 8px 18px; border-radius: 6px; color: #fff; background: rgba(120, 20, 60, 0.85); font: 600 20px sans-serif; z-index: 5; pointer-events: none; }
