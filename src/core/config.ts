@@ -11,6 +11,10 @@ export const config = {
     lng: Number(env.VITE_START_LNG ?? 18.0686),
   },
   map: { zoom: 16 },
+  camera: {
+    /** Time constant of the map rotation; lower = snappier, higher = calmer. */
+    bearingTauMs: 500,
+  },
   /** Render cap; head unit target is 30 fps (options 30/20/15). */
   fpsCap: 30,
 } as const;

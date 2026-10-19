@@ -14,3 +14,5 @@ appears blank there. Verify in a normal browser (or shim rAF with timers).
 - Build 4 device run (MapLibre 2.4 CSP build): marker + speed rendered; map blank with "ReferenceError: AbortController is not defined". Fix: AbortController polyfill in page and worker. Build 5 fixes this; re-test pending.
 - Build 5 device run: map renders on the unit (dark vector map, marker, attribution). Simulator only.
 - Build 6: real GPS added; device test pending (needs location permission prompt answered, GPS fix outdoors).
+- Build 6 device run: real GPS confirmed (marker on the actual road, position from the unit).
+- Build 7: heading-up map rotation added; device test pending.

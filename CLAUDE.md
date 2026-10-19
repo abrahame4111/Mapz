@@ -139,7 +139,7 @@ First theme: **nfs-underground**. Dark city, neon road glow, wet-asphalt feel, m
 ## 7. Roadmap
 
 1. **Scaffold (DONE):** Vite + TS + MapLibre, simulator-driven moving car marker on a basic dark map
-2. **Camera rig:** heading-up rotation, pitch, speed-based zoom, look-ahead, smoothing
+2. **Camera rig (rotation BUILT, device test pending):** heading-up rotation with frame-rate-independent smoothing (`src/map/camera.ts`, `config.camera.bearingTauMs`; `?north` forces north-up). Still to do: pitch/tilt, speed-based zoom, look-ahead (car lower on screen)
 3. **Theme system:** loader + schema validation + `nfs-underground` pack (map style + HUD skin)
 4. **HUD widgets:** speedometer, clock, compass, street name, optional RPM/temp
 5. **Real GPS (BUILT, device test pending):** WebView `navigator.geolocation` (not the Capacitor plugin, which may need Google Play Services the unit lacks); `src/data/gps.ts` + pure `src/core/gpsTracker.ts` (accuracy/out-of-order rejection, speed/heading derivation, heading hold when stopped, 5 s dropout watchdog). Native app uses GPS by default, desktop browser uses the simulator; `?gps` / `?sim` override
@@ -174,7 +174,7 @@ npm run build:bump   # increment build-number.txt for a new iteration
 
 ## 10. Instructions for Claude Code
 
-- **Build numbering:** every APK handed to the head unit gets the next iteration number. `build-number.txt` holds the current one; run `npm run build:bump` before building a new iteration, then `npm run android:apk` and `npm run pack:usb`. The number is the APK versionCode ("build N"), the file name (`dist-usb/nfs-nav-build-N.apk`), and is shown on screen. Build 1 = first APK, 2 = targetSdk 28, 3 = diagnostics, 4 = Chrome 61 legacy bundle + MapLibre 2.4, 5 = AbortController polyfills (map works on the unit), 6 = real GPS. Name sent files and captions with the build number.
+- **Build numbering:** every APK handed to the head unit gets the next iteration number. `build-number.txt` holds the current one; run `npm run build:bump` before building a new iteration, then `npm run android:apk` and `npm run pack:usb`. The number is the APK versionCode ("build N"), the file name (`dist-usb/nfs-nav-build-N.apk`), and is shown on screen. Build 1 = first APK, 2 = targetSdk 28, 3 = diagnostics, 4 = Chrome 61 legacy bundle + MapLibre 2.4, 5 = AbortController polyfills (map works on the unit), 6 = real GPS (confirmed on the unit), 7 = heading-up map rotation. Name sent files and captions with the build number.
 
 - Start every session by reading this file. If a decision changes, update the relevant section.
 - Work in small steps. After each step the app should still run on the laptop with the simulator.

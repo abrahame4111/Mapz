@@ -12,6 +12,7 @@ import type { VehicleDataSource } from './data/types';
 import { buildBaseStyle } from './map/style';
 import { CarMarker } from './map/carMarker';
 import { PoseInterpolator } from './map/interpolate';
+import { smoothBearing } from './map/camera';
 
 function hasWebGL(): boolean {
   try {
@@ -107,6 +108,10 @@ function boot(): void {
   let last = 0;
   let lastText = '';
   let lastBanner = '';
+  // Heading-up camera: the map turns so the direction of travel points up (north-up with ?north).
+  const northUp = params.has('north');
+  let bearing: number | undefined;
+  let lastFrameAt = 0;
   const frame = (now: number): void => {
     requestAnimationFrame(frame);
     if (now - last < minFrameMs) return;
@@ -126,8 +131,12 @@ function boot(): void {
     }
     const pose = interp.pose(now);
     if (!pose) return;
+    // Marker rotation is the true heading on the map; with the map turned to the heading it points up.
     car.update(pose.lng, pose.lat, pose.heading);
-    map.jumpTo({ center: [pose.lng, pose.lat] });
+    const dt = lastFrameAt ? now - lastFrameAt : 0;
+    lastFrameAt = now;
+    bearing = bearing === undefined ? pose.heading : smoothBearing(bearing, pose.heading, dt, config.camera.bearingTauMs);
+    map.jumpTo({ center: [pose.lng, pose.lat], bearing: northUp ? 0 : bearing });
   };
   requestAnimationFrame(frame);
 }
