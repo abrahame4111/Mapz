@@ -31,7 +31,7 @@ Design for the **weakest plausible device** (Android 6–8, low-end SoC, ~1–2 
 - **Build:** Vite, with a legacy/low build target (ES2015-ish) for old WebViews
 - **Map:** MapLibre GL JS with custom style JSON. **Never Google Maps** (its terms forbid restyling into a game-like map)
 - **Tiles:** OpenStreetMap-derived vector tiles (MapTiler, Protomaps/PMTiles, or self-hosted). Keep the provider swappable behind one config. **Current dev default: OpenFreeMap** (keyless, OpenMapTiles schema; set in `src/core/config.ts` / `VITE_TILE_URL`). CARTO dark raster tiles were tried and now require an API key
-- **MapLibre version:** pinned to **4.x** (^4.7.1). v5 dropped WebGL1, and an old head-unit WebView may only have WebGL1. Revisit once the unit is tested
+- **MapLibre version:** pinned to **2.4.0** (exact). The head unit WebView is **Chrome 61, WebGL1 only, no ResizeObserver** (measured via the on-screen diagnostics). 2.4.0 ships ES2015/ES2016 code. We use its **CSP build with the worker as a separate asset** (src/map/maplibre.ts); the default build embeds the worker as text, which the legacy Babel transform breaks. The Vite legacy plugin is set to legacy-only (renderModernChunks:false), because Chrome 61 loads type=module but cannot parse dynamic import()
 - **UI:** Vanilla TS + DOM/CSS/SVG with a tiny state store. **No heavy frameworks** (no React) unless profiling proves it is fine on-device
 - **Android wrapper:** Capacitor **6** (JDK 17, minSdk 22; app id com.example.nfsnav, placeholder)
   Capacitor (WebView app → APK). Fall back to a native Kotlin shell only if the unit's WebView is unusable
@@ -164,7 +164,7 @@ npm run pack:usb     # copy APK to ./dist-usb/nfs-nav.apk (themes not yet)
 
 ## 9. Open questions (update as answered)
 
-- [x] Head unit: **Blaupunkt Key Largo 970, Android 9** (firmware A50-OAE-V1.0.45R1-210401_1626, MCU A50M01-IA03A51.H3, 2 GB RAM, 16 GB). Still unknown: WebView version, screen resolution. **Sideloading fix:** the unit refused ALL third-party APKs ("App not installed") until **Settings > General > Factory Settings > Other settings > "closed system" was switched off**. No browser or Play Store on the launcher
+- [x] Head unit: **Blaupunkt Key Largo 970, Android 9** (firmware A50-OAE-V1.0.45R1-210401_1626, MCU A50M01-IA03A51.H3, 2 GB RAM, 16 GB). **WebView: Chrome 61, WebGL1 only (no WebGL2), no ResizeObserver; screen 1024x541.** **Sideloading fix:** the unit refused ALL third-party APKs ("App not installed") until **Settings > General > Factory Settings > Other settings > "closed system" was switched off**. No browser or Play Store on the launcher
 - [ ] Does the unit have built-in GPS? Probably yes: GPS status icon + built-in "GPS Test" app (unverified; test in step 5)
 - [ ] Can the unit join the phone hotspot, and is its browser/WebView WebGL-capable?
 - [ ] Preferred tile provider and budget (free tier vs self-hosted PMTiles)

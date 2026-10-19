@@ -65,7 +65,7 @@ src/
 ## Known issues
 
 - The Key Largo 970 blocks third-party APKs by default. Installing works after switching off the "closed system" option in Settings > General > Factory Settings > Other settings. Details in [CLAUDE.md](CLAUDE.md).
-- `maplibre-gl` is pinned to 4.x for old-WebView (WebGL1) compatibility. `npm audit` reports an HTML sanitizer advisory in this version; the app does not render untrusted HTML.
+- `maplibre-gl` is pinned to 2.4.0 because the head unit WebView is Chrome 61 (WebGL1 only). `npm audit` reports advisories for this old version; the app does not render untrusted HTML.
 
 ## Safety
 

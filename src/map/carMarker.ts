@@ -1,4 +1,5 @@
-import { Marker, type Map as MlMap } from 'maplibre-gl';
+import { Marker } from './maplibre';
+import type { MapType, MarkerType } from './maplibre';
 
 const SVG =
   '<svg viewBox="-12 -12 24 24" xmlns="http://www.w3.org/2000/svg">' +
@@ -6,9 +7,9 @@ const SVG =
 
 /** Glowing arrow marker; rotation is the car heading in degrees clockwise from north. */
 export class CarMarker {
-  private readonly marker: Marker;
+  private readonly marker: MarkerType;
 
-  constructor(map: MlMap, lng: number, lat: number) {
+  constructor(map: MapType, lng: number, lat: number) {
     const el = document.createElement('div');
     el.className = 'car-marker';
     el.innerHTML = SVG;

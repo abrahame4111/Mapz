@@ -1,12 +1,19 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
-import { Map as MlMap } from 'maplibre-gl';
+import { AttributionControl, Map as MlMap } from './map/maplibre';
+import type { MapType } from './map/maplibre';
+import ResizeObserverPolyfill from 'resize-observer-polyfill';
 import { config } from './core/config';
 import { vehicleStore } from './core/vehicle';
 import { Simulator } from './data/simulator';
 import { buildBaseStyle } from './map/style';
 import { CarMarker } from './map/carMarker';
 import { PoseInterpolator } from './map/interpolate';
+
+// Chrome 61 (head unit WebView) has no ResizeObserver, which MapLibre needs.
+if (!('ResizeObserver' in window)) {
+  (window as unknown as { ResizeObserver: unknown }).ResizeObserver = ResizeObserverPolyfill;
+}
 
 function hasWebGL(): boolean {
   try {
@@ -43,9 +50,12 @@ function boot(): void {
     center: [config.start.lng, config.start.lat],
     zoom: config.map.zoom,
     interactive: false, // driver display: no touch handling that needs attention (CLAUDE.md §6)
-    attributionControl: { compact: true }, // attribution is required, keep it visible
+    attributionControl: false, // added below as a compact control (maplibre 2.x API)
     fadeDuration: 0,
   });
+
+  // Attribution is required by the OSM/OpenFreeMap licences; keep it visible.
+  map.addControl(new AttributionControl({ compact: true }));
 
   map.on('error', (e) => {
     console.error('[map]', e.error?.message ?? e);
@@ -57,7 +67,7 @@ function boot(): void {
   });
 
   // Dev-only handle for console debugging.
-  if (import.meta.env.DEV) (window as unknown as { __map: MlMap }).__map = map;
+  if (import.meta.env.DEV) (window as unknown as { __map: MapType }).__map = map;
 
   const car = new CarMarker(map, config.start.lng, config.start.lat);
   const interp = new PoseInterpolator();

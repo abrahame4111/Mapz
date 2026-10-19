@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "@capacitor/core": "^6.2.2",
-    "maplibre-gl": "^4.7.1"
+    "maplibre-gl": "2.4.0",
+    "resize-observer-polyfill": "^1.5.1"
   },
   "devDependencies": {
     "@capacitor/android": "^6.2.2",

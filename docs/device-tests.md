@@ -6,3 +6,8 @@
 
 Dev-environment note: the Claude desktop browser pane does not fire `requestAnimationFrame`, so the map
 appears blank there. Verify in a normal browser (or shim rAF with timers).
+
+## 2026-10-19 Key Largo 970 diagnostics
+- WebView UA: Chrome/61.0.3163.98 (device 8227L_demo, Android 9). webgl1=true, webgl2=false, screen 1024x541, dpr 1.
+- Failures seen with MapLibre 4.7.1 + modern/legacy split: SyntaxError on import() (modern bundle), "Unexpected token ." (worker), ResizeObserver undefined.
+- Fix: legacy-only bundle, ResizeObserver polyfill, MapLibre 2.4.0 CSP build with separate worker. Re-test pending on device.
