@@ -100,16 +100,17 @@ body.full .maplibregl-ctrl-bottom-right { left: 90px; right: auto; }
 #search-results .t { font-size: 5vh; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #search-results .s { margin-top: 0.4vh; font-size: 3.2vh; color: #a9a3c8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* Dark on-screen keyboard (about 42% of the screen height) */
-#kb { position: absolute; left: 0; right: 0; bottom: 0; height: 42vh; padding: 1vh 1.2% 1.2vh; box-sizing: border-box; display: flex; flex-direction: column; background: #0c0a16; border-top: 1px solid rgba(176, 102, 255, 0.3); }
+/* Dark on-screen keyboard (about 42% of the screen height): black and greys only, no purple */
+#kb { position: absolute; left: 0; right: 0; bottom: 0; height: 42vh; padding: 1vh 1.2% 1.2vh; box-sizing: border-box; display: flex; flex-direction: column; background: #000; border-top: 1px solid #2a2a2c; }
 .kb-row { flex: 1; display: flex; margin-bottom: 0.9vh; }
 .kb-row:last-child { margin-bottom: 0; }
-.kb-key { min-width: 0; margin: 0 0.45vh; padding: 0; border: 0; border-radius: 1.8vh; background: #231c3a; color: #f3eeff; font-size: 4.6vh; font-weight: 600; -webkit-tap-highlight-color: transparent; touch-action: manipulation; display: flex; align-items: center; justify-content: center; }
-.kb-key:active { background: #5b3d99; }
-.kb-fn { background: #17122a; color: #cdb8f0; font-size: 3.8vh; }
-.kb-space { font-size: 3.4vh; color: #9a93b8; }
-.kb-go { background: #7a4fd0; color: #fff; font-size: 3.8vh; font-weight: 800; letter-spacing: 0.02em; }
-.kb-go:active { background: #9b72ee; }
+.kb-key { min-width: 0; margin: 0 0.45vh; padding: 0; border: 0; border-radius: 1.8vh; background: #2c2c2e; color: #f2f2f7; font-size: 4.6vh; font-weight: 600; -webkit-tap-highlight-color: transparent; touch-action: manipulation; display: flex; align-items: center; justify-content: center; }
+.kb-key:active { background: #505054; }
+.kb-fn { background: #1c1c1e; color: #c7c7cc; font-size: 3.8vh; }
+.kb-fn:active { background: #3a3a3c; }
+.kb-space { font-size: 3.4vh; color: #98989d; }
+.kb-go { background: #d1d1d6; color: #000; font-size: 3.8vh; font-weight: 800; letter-spacing: 0.02em; }
+.kb-go:active { background: #f2f2f7; }
 .kb-key svg { width: 4.6vh; height: 4.6vh; stroke-width: 2; }
 
 /* ---------- arrival popup: just the flag and a Close button, no card or border ---------- */
