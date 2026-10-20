@@ -24,7 +24,7 @@ A stylized, game-inspired **minimap for a car head unit**. Mapz shows a dark, ne
 - Search is locked while the car moves (safety)
 - Lyrics mode (music button): a Spotify-style lyrics card in the right panel that scrolls and highlights in time with the song. Song info comes from your Spotify account (phone plays over Bluetooth); see [docs/spotify-setup.md](docs/spotify-setup.md)
 - Heading-up camera: the map rotates so your direction of travel always points up (smoothed; `?north` for north-up)
-- Pinch-to-zoom (remembered) and a Map button that switches between the circular minimap and a full-screen map; the car stays in the same spot on screen
+- Pinch-to-zoom (remembered) and a Map button (left column) that switches between the circular minimap and a full-screen map; the car stays in the same spot on screen
 - Glassmorphism turn panel (frosted blur where the browser supports it, tinted glass on older WebViews)
 - Glowing car marker that rotates with heading
 - Real GPS from the device (`navigator.geolocation`) with accuracy filtering, heading smoothing and a "GPS signal lost" banner

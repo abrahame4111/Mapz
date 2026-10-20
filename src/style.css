@@ -15,7 +15,7 @@ svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: 
 .slot:last-child { margin-bottom: 0; }
 .slot svg { width: 5.6vh; height: 5.6vh; stroke-width: 2.4; }
 .slot:active:not(:disabled):not(.reserved) { background: rgba(176, 102, 255, 0.4); }
-.slot.on { background: rgba(176, 102, 255, 0.38); box-shadow: 0 0 2.2vh rgba(176, 102, 255, 0.8); }
+.slot.on, .slot[aria-pressed="true"] { background: rgba(176, 102, 255, 0.38); box-shadow: 0 0 2.2vh rgba(176, 102, 255, 0.8); }
 .slot:disabled { opacity: 0.35; box-shadow: none; }
 .slot.locked { opacity: 0.35; box-shadow: none; }
 .slot.reserved { border: 2px dashed rgba(176, 102, 255, 0.22); background: transparent; box-shadow: none; }
@@ -29,12 +29,6 @@ svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: 
 #ring { z-index: 1; pointer-events: none; box-sizing: border-box; border-radius: 50%; border: 3px solid #b066ff; box-shadow: 0 0 2.4vh #7a3cff, inset 0 0 3.4vh rgba(122, 60, 255, 0.55); }
 .maplibregl-ctrl-attrib { background: rgba(7, 8, 13, 0.7) !important; color: #889 !important; }
 .maplibregl-ctrl-attrib a { color: #aab !important; }
-
-/* Map button: bottom right of the minimap square, above the attribution. It stays put in both map modes. */
-#btn-map { position: absolute; right: 4px; bottom: 36px; z-index: 6; width: 50px; height: 50px; padding: 0; border: 2px solid #b066ff; border-radius: 9px; background: rgba(7, 8, 13, 0.75); color: #b066ff; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-#btn-map svg { width: 28px; height: 28px; stroke-width: 2.2; }
-#btn-map:active, #btn-map[aria-pressed="true"] { background: rgba(176, 102, 255, 0.35); }
-@media (max-height: 480px) { #btn-map { width: 42px; height: 42px; } }
 
 /* Full-screen map: the map fills the screen behind the buttons and panel, the circle mask and ring go away, and the
    car stays where the minimap centre is (camera padding, see main.ts). */

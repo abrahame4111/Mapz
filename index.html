@@ -7,7 +7,7 @@
   </head>
   <body>
     <div id="app">
-      <!-- Left: six button slots. 1 = search, 2 = end route; 3-6 are reserved. -->
+      <!-- Left: six button slots. 1 = search, 2 = end route, 3 = lyrics, 4 = map (minimap / full screen); 5-6 are reserved. -->
       <div id="left">
         <button id="btn-search" class="slot" type="button" aria-label="Search destination">
           <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 L21 21"/></svg>
@@ -18,13 +18,15 @@
         <button id="btn-lyrics" class="slot" type="button" aria-label="Lyrics" aria-pressed="false">
           <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
         </button>
-        <div class="slot reserved"></div>
+        <button id="btn-map" class="slot" type="button" aria-label="Toggle full-screen map" aria-pressed="false">
+          <svg viewBox="0 0 24 24"><path d="M3 6.5 L9 4 L15 6.5 L21 4 V17.5 L15 20 L9 17.5 L3 20 Z M9 4 V17.5 M15 6.5 V20"/></svg>
+        </button>
         <div class="slot reserved"></div>
         <div class="slot reserved"></div>
       </div>
 
       <!-- Middle: the circular minimap. #minimap is a fixed square that always stays in the layout; #map-box inside it is
-           the map, which becomes full-screen when the Map button is pressed (the car stays at this square's centre). -->
+           the map, which becomes full-screen when the Map button (left column, slot 4) is pressed (the car stays at this square's centre). -->
       <div id="center">
         <div id="minimap">
           <div id="map-box">
@@ -32,9 +34,6 @@
             <div id="mask"></div>
             <div id="ring"></div>
           </div>
-          <button id="btn-map" type="button" aria-label="Toggle full-screen map" aria-pressed="false">
-            <svg viewBox="0 0 24 24"><path d="M3 6.5 L9 4 L15 6.5 L21 4 V17.5 L15 20 L9 17.5 L3 20 Z M9 4 V17.5 M15 6.5 V20"/></svg>
-          </button>
         </div>
       </div>
 
