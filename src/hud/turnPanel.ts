@@ -3,6 +3,7 @@ import type { TurnKind } from '../nav/types';
 import { turnIconSvg } from './turnIcons';
 
 export type PanelModel =
+  | { mode: 'hidden' } // another card (lyrics) is using the panel
   | { mode: 'idle'; speed: number }
   | { mode: 'message'; text: string }
   | { mode: 'nav'; dist: DistanceText; kind: TurnKind };
@@ -39,6 +40,11 @@ export class TurnPanel {
   }
 
   render(m: PanelModel): void {
+    if (m.mode === 'hidden') {
+      this.idle.hidden = true;
+      this.nav.hidden = true;
+      return;
+    }
     if (m.mode === 'idle') {
       this.idle.hidden = false;
       this.nav.hidden = true;

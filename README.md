@@ -22,6 +22,7 @@ A stylized, game-inspired **minimap for a car head unit**. NFS-Nav shows a dark,
 - Live turn-by-turn panel: just the distance to the next turn (counting down) and an Apple-style symbol for it (straight, slight/normal/sharp left and right, U-turns)
 - Arrival popup with a neon checkered flag and a Close button (Close clears the route from the map)
 - Search is locked while the car moves (safety)
+- Lyrics mode (music button): a Spotify-style lyrics card in the right panel that scrolls and highlights in time with the song. The lyrics screen and sync are built; connecting it to the Spotify account is still to do
 - Heading-up camera: the map rotates so your direction of travel always points up (smoothed; `?north` for north-up)
 - Pinch-to-zoom (remembered) and a Map button that switches between the circular minimap and a full-screen map; the car stays in the same spot on screen
 - Glassmorphism turn panel (frosted blur where the browser supports it, tinted glass on older WebViews)

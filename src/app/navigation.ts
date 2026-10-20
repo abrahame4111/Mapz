@@ -25,7 +25,7 @@ export interface NavigationOptions {
  * Wires destination search, routing, the glowing route + finish flag, the turn-by-turn panel, the six
  * left-hand buttons and the arrival popup. Returns a `tick` to call once per frame.
  */
-export function setupNavigation(opts: NavigationOptions): { tick: () => void } {
+export function setupNavigation(opts: NavigationOptions): { tick: (panelTakenOver?: boolean) => void } {
   const navigator = new Navigator(new OsrmProvider());
   const routeLayer = new RouteLayer(opts.map);
   const panel = new TurnPanel();
@@ -113,7 +113,8 @@ export function setupNavigation(opts: NavigationOptions): { tick: () => void } {
   };
 
   return {
-    tick(): void {
+    /** `panelTakenOver`: another card (lyrics) is showing in the right panel, so do not draw the turn/speed view. */
+    tick(panelTakenOver = false): void {
       const v = vehicleStore.get();
       if (opts.lockEnabled) {
         const was = locked;
@@ -124,7 +125,7 @@ export function setupNavigation(opts: NavigationOptions): { tick: () => void } {
           toast('Search closed: car is moving');
         }
       }
-      panel.render(model());
+      panel.render(panelTakenOver ? { mode: 'hidden' } : model());
     },
   };
 }

@@ -15,7 +15,9 @@
         <button id="btn-stop" class="slot" type="button" aria-label="End route" disabled>
           <svg viewBox="0 0 24 24"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>
         </button>
-        <div class="slot reserved"></div>
+        <button id="btn-lyrics" class="slot" type="button" aria-label="Lyrics" aria-pressed="false">
+          <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        </button>
         <div class="slot reserved"></div>
         <div class="slot reserved"></div>
         <div class="slot reserved"></div>
@@ -48,6 +50,11 @@
             <div id="turn-dist"><span id="turn-dist-value">--</span><span id="turn-dist-unit"></span></div>
             <div id="turn-icon"></div>
             <div id="turn-msg"></div>
+          </div>
+          <div id="panel-lyrics" hidden>
+            <div id="lyr-head"><div id="lyr-title"></div><div id="lyr-artist"></div></div>
+            <div id="lyr-view"><div id="lyr-lines"></div><div id="lyr-status"></div></div>
+            <div id="lyr-credit">Lyrics by LRCLIB</div>
           </div>
         </div>
       </div>

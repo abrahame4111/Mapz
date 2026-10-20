@@ -16,6 +16,9 @@ import { paddingFor, smoothBearing } from './map/camera';
 import { loadZoom, saveZoom } from './core/zoomStore';
 import { loadFullscreen, saveFullscreen } from './core/prefs';
 import { setupNavigation } from './app/navigation';
+import { setupLyrics } from './app/lyrics';
+import { DemoLyricsProvider, DemoNowPlaying } from './lyrics/demo';
+import { LrcLibProvider } from './lyrics/lrclib';
 
 function hasWebGL(): boolean {
   try {
@@ -138,6 +141,12 @@ function boot(): void {
           speedFactor: Number(params.get('simspeed')) || 1, // dev only: ?simspeed=5 drives 5x faster
         });
   diag('source: ' + kind);
+  // Lyrics mode. The real now-playing source (Spotify account) is not connected yet; `?lyricsdemo` uses a pretend song.
+  const demoSong = params.has('lyricsdemo');
+  const lyrics = setupLyrics({
+    source: demoSong ? new DemoNowPlaying() : undefined,
+    provider: demoSong ? new DemoLyricsProvider() : new LrcLibProvider(),
+  });
   const nav = setupNavigation({
     map,
     sim: source instanceof Simulator ? source : undefined,
@@ -198,7 +207,8 @@ function boot(): void {
       banner.style.display = bannerText ? 'block' : 'none';
       lastBanner = bannerText;
     }
-    nav.tick();
+    nav.tick(lyrics.active);
+    lyrics.tick(now);
     const text = `build ${__BUILD_NUMBER__} | ${kind.toUpperCase()} | ${Math.round(v.speed)} km/h`;
     if (text !== lastText) {
       debug.textContent = text;
