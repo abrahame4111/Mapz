@@ -26,6 +26,7 @@
   The `state` value (created by the app) says where to send the browser back to. Only addresses on the allow-list
   below are honoured, so this page cannot be used as an open redirect.
 -->
+<script src="/relay-config.js"></script>
 <script>
 (function () {
   var ALLOWED_RETURN = ['https://localhost', 'http://localhost:5173', 'http://127.0.0.1:5173'];
@@ -52,6 +53,30 @@
   var code = params.get('code');
   var error = params.get('error');
   var parsed = state ? decodeState(state) : null;
+
+  // Phone login: the state carries a pairing code. Leave the authorization code with the relay so the car unit can collect it.
+  // (The code is useless without the PKCE verifier, which stays on the unit.)
+  if (parsed && typeof parsed.pair === 'string') {
+    if (error) return fail(error === 'access_denied' ? 'Login was cancelled.' : 'Spotify reported an error: ' + error);
+    if (!code) return fail('Spotify did not send a login result.');
+    if (!window.MAPZ_RELAY) return fail('This page is not set up yet (no relay address).');
+    msg.textContent = 'Connecting your car...';
+    fetch(window.MAPZ_RELAY + '/api/pair/complete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: parsed.pair, authCode: code }),
+    }).then(function (r) {
+      if (r.ok) {
+        msg.textContent = 'Done! Look at your car screen.';
+        sub.textContent = 'Spotify is now connected to Mapz. You can close this page.';
+      } else if (r.status === 404) {
+        fail('That pairing code has expired. Press Connect Spotify on the car screen again.');
+      } else {
+        fail('The service had a problem. Try again.');
+      }
+    }).catch(function () { fail('Could not reach the service. Check your connection.'); });
+    return;
+  }
 
   if (!parsed || typeof parsed.returnTo !== 'string') return fail('This login link is not valid.');
   if (ALLOWED_RETURN.indexOf(parsed.returnTo) === -1) return fail('Unknown return address.');

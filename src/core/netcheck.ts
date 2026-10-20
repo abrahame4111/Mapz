@@ -59,7 +59,7 @@ export async function runNetworkCheck(
   log: (line: string) => void,
   fetchFn?: FetchFn,
   targets: CheckTarget[] = [
-    ...(config.routeRelayUrl ? [{ name: 'route RELAY (Cloudflare)', url: config.routeRelayUrl + '/health' }] : []),
+    ...(config.relayUrl ? [{ name: 'route RELAY (Cloudflare)', url: config.relayUrl + '/health' }] : []),
     ...CHECK_TARGETS,
   ],
 ): Promise<void> {

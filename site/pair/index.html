@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Mapz: connect Spotify</title>
+<style>
+  html, body { margin: 0; min-height: 100%; background: #0b0911; color: #fff; font-family: Roboto, "Segoe UI", Arial, sans-serif; }
+  body { display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box; min-height: 100vh; }
+  main { width: 100%; max-width: 420px; text-align: center; }
+  h1 { font-size: 26px; margin: 0 0 8px; }
+  p { color: #b7b2c9; font-size: 17px; line-height: 1.45; margin: 8px 0 20px; }
+  input { width: 100%; box-sizing: border-box; padding: 16px; font-size: 34px; letter-spacing: 0.35em; text-align: center; text-transform: uppercase; border-radius: 14px; border: 2px solid #7a4fd0; background: #17122a; color: #fff; outline: none; }
+  button { width: 100%; margin-top: 16px; padding: 16px; font-size: 20px; font-weight: 700; border: 0; border-radius: 14px; background: #7a4fd0; color: #fff; }
+  button:disabled { opacity: 0.5; }
+  #msg { min-height: 24px; margin-top: 16px; font-size: 16px; color: #ff9db0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Connect Spotify to Mapz</h1>
+  <p>Type the 6-character code shown on your car screen, then log in to Spotify.</p>
+  <form id="f" autocomplete="off">
+    <input id="code" maxlength="6" inputmode="text" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ABC123" aria-label="Code from the car screen">
+    <button id="go" type="submit">Continue</button>
+  </form>
+  <div id="msg"></div>
+</main>
+<script src="/relay-config.js"></script>
+<script>
+(function () {
+  // Spotify app settings. The Client ID is public (it is in every Spotify login link). There is no secret here.
+  var CLIENT_ID = 'f50dc62b9eab4292a2b0c48992ef153f';
+  var REDIRECT_URI = 'https://queueit.live/api/spotify/callback';
+  var SCOPE = 'user-read-currently-playing';
+
+  var form = document.getElementById('f');
+  var input = document.getElementById('code');
+  var go = document.getElementById('go');
+  var msg = document.getElementById('msg');
+  var fromLink = new URLSearchParams(location.search).get('code');
+  if (fromLink) input.value = fromLink.toUpperCase().slice(0, 6);
+
+  function b64url(s) { return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+  function say(t) { msg.textContent = t; }
+
+  // The relay may need a moment to show the code to this phone (it is stored in a shared service), so retry briefly.
+  function lookup(code, triesLeft) {
+    return fetch(window.MAPZ_RELAY + '/api/pair/info?code=' + encodeURIComponent(code)).then(function (r) {
+      if (r.ok) return r.json();
+      if (r.status === 404 && triesLeft > 0) {
+        return new Promise(function (res) { setTimeout(res, 2000); }).then(function () { return lookup(code, triesLeft - 1); });
+      }
+      throw new Error(r.status === 404 ? 'That code was not found, or it has expired. Press Connect Spotify on the car screen again.' : 'The service had a problem. Try again.');
+    });
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var code = input.value.trim().toUpperCase();
+    if (!window.MAPZ_RELAY) return say('This page is not set up yet (no relay address).');
+    if (!/^[A-HJ-NP-Z2-9]{6}$/.test(code)) return say('The code is 6 letters and numbers, like K7M2QX.');
+    go.disabled = true;
+    say('Checking the code...');
+    lookup(code, 4).then(function (info) {
+      say('Opening Spotify...');
+      var q = [
+        ['client_id', CLIENT_ID], ['response_type', 'code'], ['redirect_uri', REDIRECT_URI],
+        ['code_challenge_method', 'S256'], ['code_challenge', info.challenge],
+        ['state', b64url(JSON.stringify({ pair: code }))], ['scope', SCOPE],
+      ].map(function (kv) { return kv[0] + '=' + encodeURIComponent(kv[1]); }).join('&');
+      location.href = 'https://accounts.spotify.com/authorize?' + q;
+    }).catch(function (err) {
+      go.disabled = false;
+      say(err && err.message ? err.message : 'Could not reach the service. Check your connection.');
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -35,7 +35,7 @@ export function setupNavigation(opts: NavigationOptions): { tick: (panelTakenOve
   // OSRM servers (the unit cannot reach those, but laptops can). Search has a backup too: the free public servers are sometimes slow.
   const routingProviders = [
     ...(config.orsApiKey ? [new OrsProvider(config.orsApiKey)] : []), // works on the head unit (RSA certificate)
-    ...(config.routeRelayUrl ? [new OsrmProvider(config.routeRelayUrl, 12000)] : []),
+    ...(config.relayUrl ? [new OsrmProvider(config.relayUrl, 12000)] : []),
     new OsrmProvider(undefined, 8000),
     new OsrmProvider('https://routing.openstreetmap.de/routed-car', 15000),
   ];

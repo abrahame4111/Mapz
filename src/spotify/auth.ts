@@ -118,6 +118,11 @@ export class SpotifyAuth {
     }
   }
 
+  /** Finishes a login whose authorization code arrived another way (phone pairing). `verifier` is the PKCE secret made on this unit. */
+  async exchangeCode(authCode: string, verifier: string): Promise<void> {
+    await this.requestTokens({ grant_type: 'authorization_code', code: authCode, redirect_uri: this.cfg.redirectUri, code_verifier: verifier });
+  }
+
   /** A valid access token, refreshing it first if needed. Undefined when not logged in (or the login was revoked). */
   async getAccessToken(): Promise<string | undefined> {
     const t = this.readTokens();

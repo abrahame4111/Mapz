@@ -22,6 +22,7 @@ import { DemoLyricsProvider, DemoNowPlaying } from './lyrics/demo';
 import { LrcLibProvider } from './lyrics/lrclib';
 import { SpotifyAuth } from './spotify/auth';
 import { SpotifyNowPlaying } from './spotify/nowPlaying';
+import { SpotifyPairing } from './spotify/pairing';
 
 function hasWebGL(): boolean {
   try {
@@ -156,11 +157,14 @@ function boot(): void {
   // account (the phone plays over Bluetooth). `?lyricsdemo` swaps in a pretend song for trying the screen without a login.
   const demoSong = params.has('lyricsdemo');
   const spotify = new SpotifyAuth(config.spotify);
+  // With a relay configured, Spotify login happens on the user's phone (Spotify's own page does not work in the unit's old browser).
+  const pairing = config.relayUrl ? new SpotifyPairing(spotify, config.relayUrl) : undefined;
   const lyrics = setupLyrics({
     source: demoSong ? new DemoNowPlaying() : spotify.configured ? new SpotifyNowPlaying(spotify) : undefined,
     provider: demoSong ? new DemoLyricsProvider() : new LrcLibProvider(),
+    pairing,
     connect: () => {
-      // Leaves the app for Spotify's login page; the redirect page sends us back here with the result in the address.
+      // Fallback without a relay. Leaves the app for Spotify's login page; the redirect page sends us back here with the result in the address.
       void spotify.beginLogin(location.origin).then((url) => location.assign(url), () => nav.toast('Could not start the Spotify login'));
     },
     canConnect: () => !nav.isLocked(),

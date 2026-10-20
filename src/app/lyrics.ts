@@ -1,5 +1,6 @@
 import { LyricsView } from '../hud/lyricsView';
 import { positionMs } from '../lyrics/lrc';
+import type { PairResult } from '../spotify/pairing';
 import type { LyricsProvider, NowPlaying, NowPlayingSource, SourceProblem } from '../lyrics/types';
 
 export interface LyricsOptions {
@@ -8,6 +9,8 @@ export interface LyricsOptions {
   provider: LyricsProvider;
   /** Starts the Spotify login (leaves the app for Spotify's page and returns). */
   connect?: () => void;
+  /** Phone-based login (preferred when available): shows a code, the user logs in on their phone. */
+  pairing?: { run(onCode: (code: string) => void): Promise<PairResult>; cancel(): void; readonly active: boolean };
   /** Logging in needs typing, so it is blocked while the car moves. */
   canConnect?: () => boolean;
   toast?: (msg: string) => void;
@@ -28,6 +31,8 @@ export function setupLyrics(opts: LyricsOptions): {
   const view = new LyricsView();
   const btn = el('btn-lyrics');
   const connectBtn = el('lyr-connect');
+  const pairBox = el('lyr-pair');
+  const pairCode = el('lyr-pair-code');
   let active = false;
   let np: NowPlaying | null = null;
   let loadedId: string | undefined;
@@ -77,6 +82,40 @@ export function setupLyrics(opts: LyricsOptions): {
     }
   };
 
+  const showPairing = (on: boolean): void => {
+    pairBox.hidden = !on;
+    connectBtn.textContent = on ? 'Cancel' : 'Connect Spotify';
+  };
+
+  const startPairing = (): void => {
+    const pairing = opts.pairing!;
+    view.setStatus('');
+    connectBtn.hidden = false;
+    void pairing
+      .run((code) => {
+        pairCode.textContent = code;
+        showPairing(true);
+      })
+      .then((res) => {
+        showPairing(false);
+        if (res === 'cancelled') {
+          if (active) view.setStatus('Connect your Spotify account to see lyrics.');
+          return;
+        }
+        if (res === 'ok') {
+          if (active) {
+            opts.source?.stop();
+            connectBtn.hidden = true;
+            view.setStatus('Looking for the current song...');
+            opts.source?.start(onNowPlaying, onProblem);
+          }
+          return;
+        }
+        notice = res.error;
+        if (active) view.setStatus(res.error);
+      });
+  };
+
   const setActive = (on: boolean): void => {
     active = on;
     btn.classList.toggle('on', on);
@@ -84,6 +123,8 @@ export function setupLyrics(opts: LyricsOptions): {
     view.show(on);
     connectBtn.hidden = true;
     if (!on) {
+      opts.pairing?.cancel();
+      showPairing(false);
       opts.source?.stop();
       return;
     }
@@ -98,11 +139,16 @@ export function setupLyrics(opts: LyricsOptions): {
 
   btn.addEventListener('click', () => setActive(!active));
   connectBtn.addEventListener('click', () => {
+    if (opts.pairing?.active) {
+      opts.pairing.cancel();
+      return;
+    }
     if (opts.canConnect && !opts.canConnect()) {
       opts.toast?.('Stop the car to connect Spotify');
       return;
     }
-    opts.connect?.();
+    if (opts.pairing) startPairing();
+    else opts.connect?.();
   });
 
   return {
