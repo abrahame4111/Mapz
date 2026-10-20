@@ -60,17 +60,18 @@
       </div>
     </div>
 
-    <!-- Destination search -->
+    <!-- Destination search: big text field, results, and our own dark keyboard (Android's cannot be forced dark) -->
     <div id="search" hidden>
       <div id="search-card">
         <div id="search-bar">
           <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 L21 21"/></svg>
-          <input id="search-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Where to?" />
+          <div id="search-field"><span id="search-text"></span><span id="search-caret"></span><span id="search-hint">Where to?</span></div>
           <button id="search-close" type="button" aria-label="Close search"><svg viewBox="0 0 24 24"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></button>
         </div>
         <div id="search-status"></div>
         <ul id="search-results"></ul>
       </div>
+      <div id="kb"></div>
     </div>
 
     <!-- Arrival popup -->

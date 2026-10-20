@@ -1,40 +1,46 @@
 import type { LatLng } from '../core/geo';
 import { debounce } from '../nav/net';
 import type { GeocodingProvider, Place } from '../nav/types';
+import { Keyboard } from './keyboard';
+import { appendChar, backspace } from './typing';
 
 const el = (id: string): HTMLElement => document.getElementById(id)!;
 
 /**
- * Full-screen destination search: a text box with a live result list underneath. Results come from the
- * geocoder; a stale (slow) answer never overwrites a newer one.
+ * Full-screen destination search: a big text field, a dark on-screen keyboard at the bottom, and a live result list
+ * in between. Results come from the geocoder; a stale (slow) answer never overwrites a newer one.
+ * The typed text lives here (no native text input), so Android's own keyboard never opens.
  */
 export class SearchPanel {
   private readonly root = el('search');
-  private readonly input = el('search-input') as HTMLInputElement;
+  private readonly textEl = el('search-text');
+  private readonly hintEl = el('search-hint');
   private readonly list = el('search-results');
   private readonly status = el('search-status');
   private seq = 0;
   private results: Place[] = [];
+  private value = '';
+  private readonly run = debounce((q: string) => void this.query(q), 300);
 
   constructor(
     private readonly geocoder: GeocodingProvider,
     private readonly getNear: () => LatLng | undefined,
     private readonly onSelect: (place: Place) => void,
   ) {
-    const run = debounce((q: string) => void this.query(q), 300);
-    this.input.addEventListener('input', () => {
-      this.seq++; // anything still in flight is now stale
-      const q = this.input.value.trim();
-      if (q.length < 3) {
-        this.show([], q ? 'Keep typing...' : '');
-        return;
-      }
-      this.status.textContent = 'Searching...';
-      run(q);
+    new Keyboard(el('kb'), {
+      onChar: (ch) => this.setValue(appendChar(this.value, ch)),
+      onBackspace: () => this.setValue(backspace(this.value)),
+      onSubmit: () => this.submit(),
     });
-    // The keyboard's "Go" / Enter key takes the first suggestion.
-    this.input.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && this.results[0]) this.pick(this.results[0]);
+    // A physical keyboard (laptop, or a USB one on the unit) works too.
+    document.addEventListener('keydown', (e) => {
+      if (!this.isOpen || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.key === 'Enter') this.submit();
+      else if (e.key === 'Backspace') this.setValue(backspace(this.value));
+      else if (e.key === 'Escape') this.close();
+      else if (e.key.length === 1) this.setValue(appendChar(this.value, e.key));
+      else return;
+      e.preventDefault();
     });
     el('search-close').addEventListener('click', () => this.close());
   }
@@ -44,17 +50,32 @@ export class SearchPanel {
   }
 
   open(): void {
-    this.input.value = '';
-    this.show([], '');
+    this.setValue('');
     this.root.hidden = false;
-    // Small delay so the overlay is laid out before the on-screen keyboard is requested.
-    setTimeout(() => this.input.focus(), 60);
   }
 
   close(): void {
     this.seq++;
-    this.input.blur();
     this.root.hidden = true;
+  }
+
+  /** The "Search" key / Enter: take the first suggestion. */
+  private submit(): void {
+    if (this.results[0]) this.onSelect(this.results[0]);
+  }
+
+  private setValue(v: string): void {
+    this.value = v;
+    this.textEl.textContent = v;
+    this.hintEl.style.display = v ? 'none' : '';
+    this.seq++; // anything still in flight is now stale
+    const q = v.trim();
+    if (q.length < 3) {
+      this.show([], q ? 'Keep typing...' : '');
+      return;
+    }
+    this.status.textContent = 'Searching...';
+    this.run(q);
   }
 
   private async query(q: string): Promise<void> {
@@ -85,12 +106,8 @@ export class SearchPanel {
         s.textContent = p.subtitle;
         li.appendChild(s);
       }
-      li.addEventListener('click', () => this.pick(p));
+      li.addEventListener('click', () => this.onSelect(p));
       this.list.appendChild(li);
     }
-  }
-
-  private pick(p: Place): void {
-    this.onSelect(p);
   }
 }

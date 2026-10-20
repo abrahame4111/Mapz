@@ -21,7 +21,7 @@ A stylized, game-inspired **minimap for a car head unit**. Mapz shows a dark, ne
 - Neon purple glowing route on the map with a chequered finish flag; the driven part of the line disappears behind the car
 - Live turn-by-turn panel: just the distance to the next turn (counting down) and an Apple-style symbol for it (straight, slight/normal/sharp left and right, U-turns)
 - Arrival popup with a neon checkered flag and a Close button (Close clears the route from the map)
-- Search is locked while the car moves (safety)
+- Large search bar with a built-in dark on-screen keyboard; search is locked while the car moves (safety)
 - Lyrics mode (music button): a Spotify-style lyrics card in the right panel that scrolls and highlights in time with the song. Song info comes from your Spotify account (phone plays over Bluetooth); see [docs/spotify-setup.md](docs/spotify-setup.md)
 - Heading-up camera: the map rotates so your direction of travel always points up (smoothed; `?north` for north-up)
 - Pinch-to-zoom (remembered) and a Map button (left column) that switches between the circular minimap and a full-screen map; the car stays in the same spot on screen

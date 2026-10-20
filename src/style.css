@@ -83,21 +83,34 @@ body.full .maplibregl-ctrl-bottom-right { left: 90px; right: auto; }
 #lyr-connect:active { background: rgba(176, 102, 255, 0.6); }
 #lyr-credit { flex: none; padding-top: 0.8vh; font-size: 1.8vh; color: rgba(255, 255, 255, 0.32); }
 
-/* ---------- search overlay ---------- */
-#search { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 20; background: rgba(5, 5, 12, 0.94); }
-#search-card { position: absolute; left: 8%; right: 8%; top: 3vh; max-height: 94vh; display: flex; flex-direction: column; }
-#search-bar { display: flex; align-items: center; height: 11vh; padding: 0 2vh; box-sizing: border-box; border-radius: 3vh; border: 2px solid #b066ff; background: rgba(26, 18, 52, 0.95); box-shadow: 0 0 2.4vh rgba(122, 60, 255, 0.5); }
-#search-bar > svg { width: 5vh; height: 5vh; flex: none; stroke-width: 2.4; color: #b066ff; }
-#search-input { flex: 1; min-width: 0; margin: 0 2vh; border: 0; outline: 0; background: transparent; color: #fff; font-size: 4.6vh; font-family: inherit; -webkit-user-select: text; user-select: text; }
-#search-input::placeholder { color: #667; }
-#search-close { flex: none; width: 7.4vh; height: 7.4vh; padding: 0; border: 2px solid rgba(176, 102, 255, 0.6); border-radius: 2vh; background: transparent; color: #d9b8ff; display: flex; align-items: center; justify-content: center; }
-#search-close svg { width: 4vh; height: 4vh; stroke-width: 2.6; }
-#search-status { min-height: 4vh; padding: 1vh 2vh 0; font-size: 2.6vh; color: #99a; }
-#search-results { list-style: none; margin: 0; padding: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-#search-results li { padding: 1.8vh 2.4vh; margin-top: 1.2vh; border-radius: 2.4vh; border: 1px solid rgba(176, 102, 255, 0.3); background: rgba(20, 14, 42, 0.9); }
-#search-results li:active { background: rgba(176, 102, 255, 0.35); }
-#search-results .t { font-size: 3.8vh; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#search-results .s { margin-top: 0.4vh; font-size: 2.6vh; color: #99a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* ---------- search overlay: big readable field, results, dark keyboard ---------- */
+#search { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 20; background: #07060d; }
+#search-card { position: absolute; left: 2.5%; right: 2.5%; top: 2vh; bottom: 44vh; display: flex; flex-direction: column; }
+#search-bar { flex: none; display: flex; align-items: center; height: 14vh; padding: 0 2.4vh; box-sizing: border-box; border-radius: 3.4vh; border: 2px solid #b066ff; background: rgba(26, 18, 52, 0.95); box-shadow: 0 0 2.4vh rgba(122, 60, 255, 0.5); }
+#search-bar > svg { width: 6.4vh; height: 6.4vh; flex: none; stroke-width: 2.4; color: #b066ff; }
+#search-field { flex: 1; min-width: 0; margin: 0 2.4vh; font-size: 6.4vh; font-weight: 600; line-height: 1.2; color: #fff; white-space: nowrap; overflow: hidden; }
+#search-caret { display: inline-block; width: 0.1em; height: 1.05em; margin-left: 2px; vertical-align: -0.14em; background: #b066ff; }
+#search-hint { position: absolute; margin-left: 0.4em; color: #8b86a8; font-weight: 500; }
+#search-close { flex: none; width: 9.4vh; height: 9.4vh; padding: 0; border: 2px solid rgba(176, 102, 255, 0.6); border-radius: 2.6vh; background: transparent; color: #d9b8ff; display: flex; align-items: center; justify-content: center; }
+#search-close svg { width: 5vh; height: 5vh; stroke-width: 2.6; }
+#search-status { flex: none; min-height: 4.4vh; padding: 1.2vh 2vh 0; font-size: 3.4vh; color: #a9a3c8; }
+#search-results { flex: 1; min-height: 0; list-style: none; margin: 0; padding: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+#search-results li { padding: 1.6vh 2.6vh; margin-top: 1.2vh; border-radius: 2.6vh; border: 1px solid rgba(176, 102, 255, 0.35); background: rgba(24, 17, 48, 0.95); }
+#search-results li:active { background: rgba(176, 102, 255, 0.4); }
+#search-results .t { font-size: 5vh; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#search-results .s { margin-top: 0.4vh; font-size: 3.2vh; color: #a9a3c8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Dark on-screen keyboard (about 42% of the screen height) */
+#kb { position: absolute; left: 0; right: 0; bottom: 0; height: 42vh; padding: 1vh 1.2% 1.2vh; box-sizing: border-box; display: flex; flex-direction: column; background: #0c0a16; border-top: 1px solid rgba(176, 102, 255, 0.3); }
+.kb-row { flex: 1; display: flex; margin-bottom: 0.9vh; }
+.kb-row:last-child { margin-bottom: 0; }
+.kb-key { min-width: 0; margin: 0 0.45vh; padding: 0; border: 0; border-radius: 1.8vh; background: #231c3a; color: #f3eeff; font-size: 4.6vh; font-weight: 600; -webkit-tap-highlight-color: transparent; touch-action: manipulation; display: flex; align-items: center; justify-content: center; }
+.kb-key:active { background: #5b3d99; }
+.kb-fn { background: #17122a; color: #cdb8f0; font-size: 3.8vh; }
+.kb-space { font-size: 3.4vh; color: #9a93b8; }
+.kb-go { background: #7a4fd0; color: #fff; font-size: 3.8vh; font-weight: 800; letter-spacing: 0.02em; }
+.kb-go:active { background: #9b72ee; }
+.kb-key svg { width: 4.6vh; height: 4.6vh; stroke-width: 2; }
 
 /* ---------- arrival popup: just the flag and a Close button, no card or border ---------- */
 #arrival { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.84); }
