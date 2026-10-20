@@ -15,6 +15,19 @@ export function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
   });
 }
 
+/**
+ * A message fit for the screen. The browser's own "Failed to fetch" says nothing useful, so network-level failures
+ * become a plain sentence naming what could not be reached; other errors (e.g. "No route found") pass through.
+ */
+export function friendlyError(e: unknown, whatWasReached: string): string {
+  const msg = e instanceof Error ? e.message : String(e);
+  if (/failed to fetch|networkerror|load failed|network request failed/i.test(msg)) {
+    return `Cannot reach the ${whatWasReached}. Check the internet connection.`;
+  }
+  if (/timed out/i.test(msg)) return `The ${whatWasReached} is too slow to answer. Try again.`;
+  return msg;
+}
+
 /** Calls `fn` once `waitMs` has passed without another call. */
 export function debounce<A extends unknown[]>(fn: (...args: A) => void, waitMs: number): (...args: A) => void {
   let t: ReturnType<typeof setTimeout> | undefined;

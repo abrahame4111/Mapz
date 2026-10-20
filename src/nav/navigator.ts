@@ -2,6 +2,7 @@ import type { LatLng } from '../core/geo';
 import { createStore, type Store } from '../core/store';
 import type { Path } from '../data/path';
 import { computeProgress, routePath, type Progress } from './progress';
+import { friendlyError } from './net';
 import type { Place, Route, RoutingProvider } from './types';
 
 export type NavStatus = 'idle' | 'routing' | 'active' | 'rerouting' | 'arrived' | 'error';
@@ -47,7 +48,7 @@ export class Navigator {
       this.store.set({ status: 'active', route, progress: computeProgress(route, this.path, from), error: undefined });
     } catch (e) {
       if (id !== this.requestId) return;
-      this.store.set({ status: 'error', error: e instanceof Error ? e.message : 'Routing failed' });
+      this.store.set({ status: 'error', error: friendlyError(e, 'routing service') });
     }
   }
 

@@ -51,11 +51,14 @@ export function parseOsrmRoute(json: unknown): Route {
  * (Valhalla, a hosted API) before relying on it.
  */
 export class OsrmProvider implements RoutingProvider {
-  constructor(private readonly base = 'https://router.project-osrm.org') {}
+  constructor(
+    private readonly base = 'https://router.project-osrm.org',
+    private readonly timeoutMs = 15000,
+  ) {}
 
   async route(from: LatLng, to: LatLng): Promise<Route> {
     const url = `${this.base}/route/v1/driving/${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson&steps=true`;
-    const res = await withTimeout(fetch(url), 15000);
+    const res = await withTimeout(fetch(url), this.timeoutMs);
     if (!res.ok) throw new Error('Routing service error ' + res.status);
     return parseOsrmRoute(await res.json());
   }

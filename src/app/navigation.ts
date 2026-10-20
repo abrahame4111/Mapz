@@ -6,7 +6,10 @@ import { TurnPanel, type PanelModel } from '../hud/turnPanel';
 import type { MapType } from '../map/maplibre';
 import { RouteLayer } from '../map/routeLayer';
 import { formatDistance } from '../nav/format';
+import { FallbackGeocoder } from '../nav/fallbackGeocoder';
+import { FallbackRouting } from '../nav/fallbackRouting';
 import { PhotonProvider } from '../nav/geocode';
+import { NominatimProvider } from '../nav/nominatim';
 import { Navigator } from '../nav/navigator';
 import { OsrmProvider } from '../nav/routing';
 import { nextLockState } from '../safety/lockout';
@@ -26,7 +29,10 @@ export interface NavigationOptions {
  * left-hand buttons and the arrival popup. Returns a `tick` to call once per frame.
  */
 export function setupNavigation(opts: NavigationOptions): { tick: (panelTakenOver?: boolean) => void; isLocked: () => boolean; toast: (msg: string) => void } {
-  const navigator = new Navigator(new OsrmProvider());
+  // Each service has a backup because the free public servers are sometimes slow or down.
+  const navigator = new Navigator(
+    new FallbackRouting(new OsrmProvider(undefined, 8000), new OsrmProvider('https://routing.openstreetmap.de/routed-car', 15000)),
+  );
   const routeLayer = new RouteLayer(opts.map);
   const panel = new TurnPanel();
   const toastEl = el('toast');
@@ -45,7 +51,7 @@ export function setupNavigation(opts: NavigationOptions): { tick: (panelTakenOve
 
   const arrival = new ArrivalPopup(() => navigator.dismissArrival());
   const search = new SearchPanel(
-    new PhotonProvider(),
+    new FallbackGeocoder(new PhotonProvider(), new NominatimProvider()),
     position,
     (place) => {
       const here = position();

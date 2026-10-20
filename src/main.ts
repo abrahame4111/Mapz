@@ -15,6 +15,7 @@ import { PoseInterpolator } from './map/interpolate';
 import { paddingFor, smoothBearing } from './map/camera';
 import { loadZoom, saveZoom } from './core/zoomStore';
 import { loadFullscreen, saveFullscreen } from './core/prefs';
+import { runNetworkCheck } from './core/netcheck';
 import { setupNavigation } from './app/navigation';
 import { setupLyrics } from './app/lyrics';
 import { DemoLyricsProvider, DemoNowPlaying } from './lyrics/demo';
@@ -32,7 +33,7 @@ function hasWebGL(): boolean {
 }
 
 // Boot diagnostics are drawn on screen because the head unit has no dev tools. See index.html.
-type DiagWindow = { __diag?: (m: string) => void; __diagToggle?: () => void; __appStarted?: boolean };
+type DiagWindow = { __diag?: (m: string) => void; __diagToggle?: () => void; __onDiagOpen?: () => void; __appStarted?: boolean };
 const dw = window as unknown as DiagWindow;
 const diag = (m: string): void => dw.__diag?.(m);
 
@@ -124,6 +125,8 @@ function boot(): void {
   const car = new CarMarker(map, config.start.lng, config.start.lat);
   const interp = new PoseInterpolator();
   const debug = document.getElementById('debug')!;
+  // Opening the diagnostics panel (tap the build label) also tests which online services the unit can reach.
+  dw.__onDiagOpen = () => void runNetworkCheck(diag);
   debug.addEventListener('click', () => dw.__diagToggle?.()); // tap the small build label to open/close the diagnostics panel
   const banner = document.getElementById('banner')!;
 

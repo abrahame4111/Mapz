@@ -1,5 +1,5 @@
 import type { LatLng } from '../core/geo';
-import { debounce } from '../nav/net';
+import { debounce, friendlyError } from '../nav/net';
 import type { GeocodingProvider, Place } from '../nav/types';
 import { Keyboard } from './keyboard';
 import { appendChar, backspace } from './typing';
@@ -84,9 +84,10 @@ export class SearchPanel {
       const places = await this.geocoder.search(q, this.getNear());
       if (mine !== this.seq) return;
       this.show(places, places.length ? '' : 'No places found');
-    } catch {
+    } catch (e) {
       if (mine !== this.seq) return;
-      this.show([], 'Search unavailable. Check the internet connection.');
+      (window as unknown as { __diag?: (m: string) => void }).__diag?.('search failed: ' + (e instanceof Error ? e.message : String(e)));
+      this.show([], friendlyError(e, 'search service'));
     }
   }
 

@@ -118,7 +118,7 @@
         function problem(m) { window.__diag(m); reveal(10); }
         window.__diagToggle = function () {
           if (el.style.display === "block") { if (hideTimer) clearTimeout(hideTimer); el.style.display = "none"; }
-          else reveal(0);
+          else { reveal(0); if (window.__onDiagOpen) window.__onDiagOpen(); } // opening by tap runs the network check
         };
         el.onclick = window.__diagToggle;
         window.__diag("Mapz boot | " + navigator.userAgent);
