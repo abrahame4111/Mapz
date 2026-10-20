@@ -15,6 +15,7 @@ import { PoseInterpolator } from './map/interpolate';
 import { smoothBearing, smoothValue, stepZoom } from './map/camera';
 import { bindZoomControls } from './hud/zoomControls';
 import { loadZoom, saveZoom } from './core/zoomStore';
+import { setupNavigation } from './app/navigation';
 
 function hasWebGL(): boolean {
   try {
@@ -106,8 +107,14 @@ function boot(): void {
       : new Simulator({
           start: config.start,
           dropout: params.has('dropout') ? { afterS: 20, durationS: 8, everyS: 60 } : undefined,
+          speedFactor: Number(params.get('simspeed')) || 1, // dev only: ?simspeed=5 drives 5x faster
         });
   diag('source: ' + kind);
+  const nav = setupNavigation({
+    map,
+    sim: source instanceof Simulator ? source : undefined,
+    lockEnabled: !params.has('nolock'), // dev only: ?nolock lets search work while the simulator drives
+  });
   car.setVisible(kind === 'sim'); // with real GPS, show the car only once we actually have a position
   let firstFix = true;
   vehicleStore.subscribe((s) => {
@@ -173,6 +180,7 @@ function boot(): void {
       banner.style.display = bannerText ? 'block' : 'none';
       lastBanner = bannerText;
     }
+    nav.tick();
     const text = `build ${__BUILD_NUMBER__} | ${kind.toUpperCase()} | ${Math.round(v.speed)} km/h`;
     if (text !== lastText) {
       debug.textContent = text;

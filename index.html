@@ -6,16 +6,82 @@
     <title>NFS-Nav</title>
   </head>
   <body>
-    <div id="map"></div>
+    <div id="app">
+      <!-- Left: six button slots. 1 = search, 2 = end route; 3-6 are reserved. -->
+      <div id="left">
+        <button id="btn-search" class="slot" type="button" aria-label="Search destination">
+          <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 L21 21"/></svg>
+        </button>
+        <button id="btn-stop" class="slot" type="button" aria-label="End route" disabled>
+          <svg viewBox="0 0 24 24"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>
+        </button>
+        <div class="slot reserved"></div>
+        <div class="slot reserved"></div>
+        <div class="slot reserved"></div>
+        <div class="slot reserved"></div>
+      </div>
+
+      <!-- Middle: the circular minimap -->
+      <div id="center">
+        <div id="minimap">
+          <div id="map"></div>
+          <div id="mask"></div>
+          <div id="ring"></div>
+          <div id="zoom-controls">
+            <button id="zoom-in" type="button" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg></button>
+            <button id="zoom-out" type="button" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: speed when idle, turn-by-turn when navigating -->
+      <div id="right">
+        <div id="panel">
+          <div id="panel-idle">
+            <div id="idle-speed">0</div>
+            <div id="idle-unit">km/h</div>
+            <div id="idle-hint">Press <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 L21 21"/></svg> to pick a destination</div>
+          </div>
+          <div id="panel-nav" hidden>
+            <div id="turn-dist"><span id="turn-dist-value">--</span><span id="turn-dist-unit"></span></div>
+            <div id="turn-icon"></div>
+            <div id="turn-label"></div>
+            <div id="turn-street"></div>
+            <div id="nav-foot"><span id="nav-remaining"></span><span id="nav-speed"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Destination search -->
+    <div id="search" hidden>
+      <div id="search-card">
+        <div id="search-bar">
+          <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 L21 21"/></svg>
+          <input id="search-input" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Where to?" />
+          <button id="search-close" type="button" aria-label="Close search"><svg viewBox="0 0 24 24"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></button>
+        </div>
+        <div id="search-status"></div>
+        <ul id="search-results"></ul>
+      </div>
+    </div>
+
+    <!-- Arrival popup -->
+    <div id="arrival" hidden>
+      <div id="arrival-card">
+        <div id="arrival-flag"></div>
+        <div id="arrival-title">You have arrived</div>
+        <div id="arrival-place"></div>
+        <button id="arrival-close" type="button">Close</button>
+      </div>
+    </div>
+
     <div id="fallback" hidden>
       <h1>Map unavailable</h1>
       <p>This device's WebView does not support WebGL.</p>
     </div>
-    <div id="zoom-controls">
-      <button id="zoom-in" type="button" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg></button>
-      <button id="zoom-out" type="button" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg></button>
-    </div>
     <div id="banner"></div>
+    <div id="toast"></div>
     <div id="debug"></div>
     <pre id="diag"></pre>
     <!-- Plain ES5 on purpose: must run even on a WebView too old for the app bundle. -->

@@ -1,18 +1,100 @@
-html, body { margin: 0; height: 100%; background: #07080d; overflow: hidden; font-family: sans-serif; }
-#map { position: absolute; inset: 0; }
-#fallback { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #e8e8f0; background: #07080d; }
-#fallback[hidden] { display: none; }
-#debug { position: absolute; left: 8px; bottom: 8px; color: #7ff; font: 12px monospace; text-shadow: 0 0 4px #000; pointer-events: none; }
-.car-marker { width: 28px; height: 28px; }
-.car-marker svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 0 6px #0ff) drop-shadow(0 0 12px #f0f); }
+/*
+ * Layout is sized in vh (landscape head unit, 1024x541). Deliberately avoids CSS the unit's Chrome 61
+ * cannot do: flex `gap`, `min()/max()`, `inset`, `aspect-ratio`, `backdrop-filter`.
+ */
+html, body { margin: 0; height: 100%; background: #07080d; overflow: hidden; color: #fff; font-family: Roboto, "Segoe UI", "Helvetica Neue", Arial, sans-serif; -webkit-user-select: none; user-select: none; }
+[hidden] { display: none !important; }
+button { font-family: inherit; }
+svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; }
+
+#app { position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: flex; align-items: center; }
+
+/* ---------- left: six button slots ---------- */
+#left { width: 15vh; flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.slot { width: 11vh; height: 11vh; margin: 0 0 1.6vh 0; padding: 0; box-sizing: border-box; border-radius: 2.4vh; border: 2px solid #b066ff; background: rgba(176, 102, 255, 0.1); color: #d9b8ff; box-shadow: 0 0 1.6vh rgba(122, 60, 255, 0.45); -webkit-tap-highlight-color: transparent; touch-action: manipulation; display: flex; align-items: center; justify-content: center; }
+.slot:last-child { margin-bottom: 0; }
+.slot svg { width: 5.6vh; height: 5.6vh; stroke-width: 2.4; }
+.slot:active:not(:disabled):not(.reserved) { background: rgba(176, 102, 255, 0.4); }
+.slot:disabled { opacity: 0.35; box-shadow: none; }
+.slot.locked { opacity: 0.35; box-shadow: none; }
+.slot.reserved { border: 2px dashed rgba(176, 102, 255, 0.22); background: transparent; box-shadow: none; }
+
+/* ---------- middle: circular minimap ---------- */
+#center { flex: 1; display: flex; align-items: center; justify-content: center; }
+#minimap { position: relative; width: 92vh; height: 92vh; }
+#map, #mask, #ring { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+/* The map is square; the corners are painted over so it reads as a circle without clipping the WebGL canvas. */
+#mask { z-index: 1; pointer-events: none; background: radial-gradient(circle closest-side, rgba(7, 8, 13, 0) 98.4%, #07080d 99.2%); }
+#ring { z-index: 1; pointer-events: none; box-sizing: border-box; border-radius: 50%; border: 3px solid #b066ff; box-shadow: 0 0 2.4vh #7a3cff, inset 0 0 3.4vh rgba(122, 60, 255, 0.55); }
 .maplibregl-ctrl-attrib { background: rgba(7, 8, 13, 0.7) !important; color: #889 !important; }
 .maplibregl-ctrl-attrib a { color: #aab !important; }
-#diag { display: none; position: absolute; left: 8px; top: 8px; right: 8px; margin: 0; padding: 6px; color: #fff; background: rgba(0,0,0,0.75); font: 13px monospace; white-space: pre-wrap; word-break: break-all; z-index: 10; pointer-events: none; }
-#banner { display: none; position: absolute; left: 50%; bottom: 36px; transform: translateX(-50%); padding: 8px 18px; border-radius: 6px; color: #fff; background: rgba(120, 20, 60, 0.85); font: 600 20px sans-serif; z-index: 5; pointer-events: none; }
-/* Zoom buttons: bottom right, stacked. Sits above the attribution control. No flex gap / min(): unsupported in Chrome 61. */
-#zoom-controls { position: absolute; right: 16px; bottom: 64px; z-index: 6; display: flex; flex-direction: column; }
+
+/* Zoom buttons: bottom right of the minimap, stacked, above the attribution. */
+#zoom-controls { position: absolute; right: 4px; bottom: 36px; z-index: 6; display: flex; flex-direction: column; }
 #zoom-controls button { width: 50px; height: 50px; padding: 0; margin: 0 0 8px 0; border: 2px solid #b066ff; border-radius: 9px; background: rgba(7, 8, 13, 0.75); color: #b066ff; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 #zoom-controls button:last-child { margin-bottom: 0; }
 #zoom-controls button:active { background: rgba(176, 102, 255, 0.35); }
-#zoom-controls svg { width: 25px; height: 25px; fill: none; stroke: #b066ff; stroke-width: 3; stroke-linecap: round; }
+#zoom-controls svg { width: 25px; height: 25px; stroke-width: 3; }
 @media (max-height: 480px) { #zoom-controls button { width: 42px; height: 42px; } }
+
+/* ---------- right: speed / turn-by-turn ---------- */
+#right { width: 62vh; height: 92vh; flex: none; box-sizing: border-box; padding-right: 2.4vh; display: flex; }
+#panel { flex: 1; position: relative; overflow: hidden; border-radius: 3.4vh; border: 2px solid rgba(176, 102, 255, 0.6); background: linear-gradient(180deg, rgba(26, 18, 52, 0.92), rgba(10, 8, 22, 0.94)); box-shadow: 0 0 2.6vh rgba(122, 60, 255, 0.5), inset 0 0 3vh rgba(122, 60, 255, 0.18); }
+#panel-idle, #panel-nav { position: absolute; left: 0; top: 0; width: 100%; height: 100%; box-sizing: border-box; padding: 2.4vh 2vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+
+#idle-speed { font-size: 22vh; line-height: 1; font-weight: 800; letter-spacing: -0.02em; text-shadow: 0 0 2vh rgba(176, 102, 255, 0.7); }
+#idle-unit { margin-top: 0.6vh; font-size: 4vh; font-weight: 600; letter-spacing: 0.12em; color: #b066ff; }
+#idle-hint { margin-top: 5vh; font-size: 2.8vh; line-height: 1.4; color: #99a; }
+#idle-hint svg { width: 3.2vh; height: 3.2vh; vertical-align: -0.6vh; stroke-width: 2.4; color: #d9b8ff; }
+
+#turn-dist { font-weight: 800; line-height: 1; white-space: nowrap; text-shadow: 0 0 2vh rgba(176, 102, 255, 0.6); }
+#turn-dist-value { font-size: 13vh; letter-spacing: -0.02em; }
+#turn-dist-unit { margin-left: 1vh; font-size: 5vh; font-weight: 700; color: #b066ff; }
+#turn-icon { width: 30vh; height: 30vh; margin: 1.6vh 0; }
+#turn-icon svg { width: 100%; height: 100%; stroke: none; fill: none; filter: drop-shadow(0 0 1.2vh rgba(176, 102, 255, 0.65)); }
+.pop { animation: pop 0.28s ease-out; }
+@keyframes pop { 0% { transform: scale(0.88); opacity: 0.2; } 100% { transform: scale(1); opacity: 1; } }
+#turn-label { font-size: 4.2vh; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+#turn-street { width: 100%; margin-top: 0.8vh; font-size: 3vh; color: #aab; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#nav-foot { position: absolute; left: 2vh; right: 2vh; bottom: 2vh; display: flex; justify-content: space-between; font-size: 2.6vh; color: #99a; }
+
+/* ---------- search overlay ---------- */
+#search { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 20; background: rgba(5, 5, 12, 0.94); }
+#search-card { position: absolute; left: 8%; right: 8%; top: 3vh; max-height: 94vh; display: flex; flex-direction: column; }
+#search-bar { display: flex; align-items: center; height: 11vh; padding: 0 2vh; box-sizing: border-box; border-radius: 3vh; border: 2px solid #b066ff; background: rgba(26, 18, 52, 0.95); box-shadow: 0 0 2.4vh rgba(122, 60, 255, 0.5); }
+#search-bar > svg { width: 5vh; height: 5vh; flex: none; stroke-width: 2.4; color: #b066ff; }
+#search-input { flex: 1; min-width: 0; margin: 0 2vh; border: 0; outline: 0; background: transparent; color: #fff; font-size: 4.6vh; font-family: inherit; -webkit-user-select: text; user-select: text; }
+#search-input::placeholder { color: #667; }
+#search-close { flex: none; width: 7.4vh; height: 7.4vh; padding: 0; border: 2px solid rgba(176, 102, 255, 0.6); border-radius: 2vh; background: transparent; color: #d9b8ff; display: flex; align-items: center; justify-content: center; }
+#search-close svg { width: 4vh; height: 4vh; stroke-width: 2.6; }
+#search-status { min-height: 4vh; padding: 1vh 2vh 0; font-size: 2.6vh; color: #99a; }
+#search-results { list-style: none; margin: 0; padding: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+#search-results li { padding: 1.8vh 2.4vh; margin-top: 1.2vh; border-radius: 2.4vh; border: 1px solid rgba(176, 102, 255, 0.3); background: rgba(20, 14, 42, 0.9); }
+#search-results li:active { background: rgba(176, 102, 255, 0.35); }
+#search-results .t { font-size: 3.8vh; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#search-results .s { margin-top: 0.4vh; font-size: 2.6vh; color: #99a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- arrival popup ---------- */
+#arrival { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.82); }
+#arrival-card { width: 62vh; padding: 3vh 3vh 3.4vh; box-sizing: border-box; text-align: center; border-radius: 4vh; border: 2px solid #b066ff; background: linear-gradient(180deg, #14102a, #07060f); box-shadow: 0 0 4vh rgba(122, 60, 255, 0.7), inset 0 0 4vh rgba(122, 60, 255, 0.2); animation: pop 0.35s ease-out; }
+#arrival-flag { height: 34vh; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 1.6vh rgba(176, 102, 255, 0.8)); }
+#arrival-flag svg { height: 100%; overflow: visible; }
+.flag-col { animation: wave 1.2s ease-in-out infinite; }
+@keyframes wave { 0%, 100% { transform: translateY(-3.5px); } 50% { transform: translateY(3.5px); } }
+#arrival-title { margin-top: 1vh; font-size: 5.4vh; font-weight: 800; letter-spacing: 0.04em; }
+#arrival-place { margin: 0.8vh 0 3vh; min-height: 3.4vh; font-size: 3vh; color: #aab; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#arrival-close { width: 100%; height: 9vh; border: 2px solid #b066ff; border-radius: 2.6vh; background: rgba(176, 102, 255, 0.18); color: #fff; font-size: 4vh; font-weight: 700; letter-spacing: 0.06em; -webkit-tap-highlight-color: transparent; }
+#arrival-close:active { background: rgba(176, 102, 255, 0.5); }
+
+/* ---------- small overlays ---------- */
+#banner { display: none; position: absolute; left: 50%; top: 2.4vh; transform: translateX(-50%); padding: 1vh 2.6vh; border-radius: 1.4vh; color: #fff; background: rgba(120, 20, 60, 0.88); font-size: 3.4vh; font-weight: 600; z-index: 5; pointer-events: none; white-space: nowrap; }
+#toast { display: none; position: absolute; left: 50%; bottom: 3vh; transform: translateX(-50%); padding: 1.2vh 3vh; border-radius: 2vh; color: #fff; background: rgba(40, 20, 80, 0.94); border: 1px solid #b066ff; font-size: 3.2vh; z-index: 40; pointer-events: none; white-space: nowrap; }
+#debug { position: absolute; left: 8px; bottom: 6px; color: #7ff; font: 11px monospace; text-shadow: 0 0 4px #000; pointer-events: none; z-index: 2; }
+#fallback { position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #e8e8f0; background: #07080d; z-index: 50; }
+#diag { display: none; position: absolute; left: 8px; top: 8px; right: 8px; margin: 0; padding: 6px; color: #fff; background: rgba(0, 0, 0, 0.75); font: 13px monospace; white-space: pre-wrap; word-break: break-all; z-index: 60; pointer-events: none; }
+
+/* Car marker + finish flag marker */
+.car-marker { width: 28px; height: 28px; }
+.car-marker svg { width: 100%; height: 100%; overflow: visible; fill: none; stroke: none; filter: drop-shadow(0 0 6px #0ff) drop-shadow(0 0 12px #f0f); }
+.finish-flag { width: 46px; height: 54px; }
+.finish-flag svg { width: 100%; height: 100%; overflow: visible; stroke: none; filter: drop-shadow(0 0 5px #b066ff); }

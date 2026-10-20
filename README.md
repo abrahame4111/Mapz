@@ -2,9 +2,13 @@
 
 A stylized, game-inspired **minimap for a car head unit**. NFS-Nav shows a dark, neon-accented vector map with a glowing car marker that follows your position, built as a web app that is packaged as an Android APK. Target hardware is a Blaupunkt Key Largo 970 (Android 9) in a VW Polo, but it runs in any WebGL-capable browser.
 
-![NFS-Nav map with the glowing car marker](docs/screenshot-map.jpg)
+![NFS-Nav navigating: circular minimap with a neon route, turn-by-turn panel](docs/screenshot-navigation.jpg)
 
-*Dark OpenStreetMap-based map with the car marker (simulator mode, Stockholm).*
+*Navigating (simulator, Stockholm): six buttons on the left, circular neon minimap in the middle, live turn-by-turn on the right.*
+
+![Arrival popup with a waving chequered flag](docs/screenshot-arrival.jpg)
+
+*Arrival popup.*
 
 > **Status: early development (roadmap step 5 of 11).** The map runs on the head unit. The installed app uses the unit's GPS; the desktop dev server uses a simulator (use `?gps` to try browser geolocation). A debug APK builds and installs on the head unit once its "closed system" option is switched off (see [Known issues](#known-issues)).
 
@@ -13,6 +17,11 @@ A stylized, game-inspired **minimap for a car head unit**. NFS-Nav shows a dark,
 ## Features (so far)
 
 - Dark vector map (MapLibre GL JS, OpenFreeMap tiles, OpenStreetMap data) in a custom neon-on-dark style
+- Destination search (Photon / OpenStreetMap) with live suggestions, routing (OSRM), automatic rerouting
+- Neon purple glowing route on the map with a chequered finish flag; the driven part of the line disappears behind the car
+- Live turn-by-turn panel: distance counts down to the next manoeuvre, Apple-style symbols for every direction (straight, slight/normal/sharp left and right, U-turns, arrive), next street name
+- Arrival popup with a waving black-and-white flag
+- Search is locked while the car moves (safety)
 - Heading-up camera: the map rotates so your direction of travel always points up (smoothed; `?north` for north-up)
 - Pinch-to-zoom and large + / - buttons (bottom right); the chosen zoom is remembered
 - Glowing car marker that rotates with heading
@@ -72,6 +81,10 @@ src/
 
 - The Key Largo 970 blocks third-party APKs by default. Installing works after switching off the "closed system" option in Settings > General > Factory Settings > Other settings. Details in [CLAUDE.md](CLAUDE.md).
 - `maplibre-gl` is pinned to 2.4.0 because the head unit WebView is Chrome 61 (WebGL1 only). `npm audit` reports advisories for this old version; the app does not render untrusted HTML.
+
+## Privacy and services
+
+Search queries and your position (to bias results and to route) are sent to the public Photon geocoder and the public OSRM routing demo server. Both are dev-grade public services; for real use, self-host them or swap the providers (see `src/nav/`). Map tiles come from OpenFreeMap. Google Maps/Places is intentionally not used.
 
 ## Safety
 

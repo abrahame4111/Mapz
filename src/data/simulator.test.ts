@@ -31,3 +31,24 @@ describe('simulator', () => {
     expect(out[out.length - 1]!.lat).not.toBe(start.lat);
   });
 });
+
+describe('simulator route driving', () => {
+  afterEach(() => vi.useRealTimers());
+
+  it('drives a route once and stops at its end, then can return to the loop', () => {
+    vi.useFakeTimers();
+    const out: VehicleSample[] = [];
+    const sim = new Simulator({ start, speedFactor: 20 });
+    sim.start((s) => out.push(s));
+    const end = { lat: start.lat + 0.003, lng: start.lng }; // ~333 m north
+    sim.useRoute([start, end]);
+    vi.advanceTimersByTime(30000);
+    const last = out[out.length - 1]!;
+    expect(last.lat).toBeCloseTo(end.lat, 3);
+    expect(last.speed).toBe(0); // parked at the end
+    sim.useRoute(null);
+    vi.advanceTimersByTime(3000);
+    expect(out[out.length - 1]!.speed).toBeGreaterThan(0);
+    sim.stop();
+  });
+});
