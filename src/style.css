@@ -83,22 +83,23 @@ body.full .maplibregl-ctrl-bottom-right { left: 90px; right: auto; }
 #lyr-connect:active { background: rgba(176, 102, 255, 0.6); }
 #lyr-credit { flex: none; padding-top: 0.8vh; font-size: 1.8vh; color: rgba(255, 255, 255, 0.32); }
 
-/* ---------- search overlay: big readable field, results, dark keyboard ---------- */
-#search { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 20; background: #07060d; }
+/* ---------- search overlay: big readable field and results, black and grey only (matches the keyboard) ---------- */
+#search { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 20; background: #000; }
 #search-card { position: absolute; left: 2.5%; right: 2.5%; top: 2vh; bottom: 44vh; display: flex; flex-direction: column; }
-#search-bar { flex: none; display: flex; align-items: center; height: 14vh; padding: 0 2.4vh; box-sizing: border-box; border-radius: 3.4vh; border: 2px solid #b066ff; background: rgba(26, 18, 52, 0.95); box-shadow: 0 0 2.4vh rgba(122, 60, 255, 0.5); }
-#search-bar > svg { width: 6.4vh; height: 6.4vh; flex: none; stroke-width: 2.4; color: #b066ff; }
+#search-bar { flex: none; display: flex; align-items: center; height: 14vh; padding: 0 2.4vh; box-sizing: border-box; border-radius: 3.4vh; border: 1px solid #3a3a3c; background: #1c1c1e; }
+#search-bar > svg { width: 6.4vh; height: 6.4vh; flex: none; stroke-width: 2.4; color: #98989d; }
 #search-field { flex: 1; min-width: 0; margin: 0 2.4vh; font-size: 6.4vh; font-weight: 600; line-height: 1.2; color: #fff; white-space: nowrap; overflow: hidden; }
-#search-caret { display: inline-block; width: 0.1em; height: 1.05em; margin-left: 2px; vertical-align: -0.14em; background: #b066ff; }
-#search-hint { position: absolute; margin-left: 0.4em; color: #8b86a8; font-weight: 500; }
-#search-close { flex: none; width: 9.4vh; height: 9.4vh; padding: 0; border: 2px solid rgba(176, 102, 255, 0.6); border-radius: 2.6vh; background: transparent; color: #d9b8ff; display: flex; align-items: center; justify-content: center; }
+#search-caret { display: inline-block; width: 0.1em; height: 1.05em; margin-left: 2px; vertical-align: -0.14em; background: #e5e5ea; }
+#search-hint { position: absolute; margin-left: 0.4em; color: #7c7c80; font-weight: 500; }
+#search-close { flex: none; width: 9.4vh; height: 9.4vh; padding: 0; border: 1px solid #48484a; border-radius: 2.6vh; background: #2c2c2e; color: #d1d1d6; display: flex; align-items: center; justify-content: center; }
+#search-close:active { background: #48484a; }
 #search-close svg { width: 5vh; height: 5vh; stroke-width: 2.6; }
-#search-status { flex: none; min-height: 4.4vh; padding: 1.2vh 2vh 0; font-size: 3.4vh; color: #a9a3c8; }
+#search-status { flex: none; min-height: 4.4vh; padding: 1.2vh 2vh 0; font-size: 3.4vh; color: #98989d; }
 #search-results { flex: 1; min-height: 0; list-style: none; margin: 0; padding: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-#search-results li { padding: 1.6vh 2.6vh; margin-top: 1.2vh; border-radius: 2.6vh; border: 1px solid rgba(176, 102, 255, 0.35); background: rgba(24, 17, 48, 0.95); }
-#search-results li:active { background: rgba(176, 102, 255, 0.4); }
+#search-results li { padding: 1.6vh 2.6vh; margin-top: 1.2vh; border-radius: 2.6vh; border: 1px solid #2c2c2e; background: #1c1c1e; }
+#search-results li:active { background: #3a3a3c; }
 #search-results .t { font-size: 5vh; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#search-results .s { margin-top: 0.4vh; font-size: 3.2vh; color: #a9a3c8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#search-results .s { margin-top: 0.4vh; font-size: 3.2vh; color: #98989d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* Dark on-screen keyboard (about 42% of the screen height): black and greys only, no purple */
 #kb { position: absolute; left: 0; right: 0; bottom: 0; height: 42vh; padding: 1vh 1.2% 1.2vh; box-sizing: border-box; display: flex; flex-direction: column; background: #000; border-top: 1px solid #2a2a2c; }
