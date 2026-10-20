@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { SpotifyAuth, type KeyValueStore } from './auth';
 import { decodeState } from './pkce';
 
-const CFG = { clientId: 'CID', redirectUri: 'https://mapz.live/api/spotify/callback', scope: 'user-read-currently-playing' };
+const CFG = { clientId: 'CID', redirectUri: 'https://queueit.live/api/spotify/callback', scope: 'user-read-currently-playing' };
 
 function memoryStore(): KeyValueStore & { data: Map<string, string> } {
   const data = new Map<string, string>();

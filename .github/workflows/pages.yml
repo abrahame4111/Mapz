@@ -1,5 +1,5 @@
-# Publishes the ./site folder (the Spotify login return page) to GitHub Pages, served at https://mapz.live
-# One-time setup: repo Settings > Pages > Source = "GitHub Actions", Custom domain = mapz.live. See docs/spotify-setup.md.
+# Publishes the ./site folder (the Spotify login return page) to GitHub Pages, served at https://queueit.live
+# One-time setup: repo Settings > Pages > Source = "GitHub Actions", Custom domain = queueit.live. See docs/spotify-setup.md.
 name: Deploy site to GitHub Pages
 
 on:
