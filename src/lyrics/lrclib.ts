@@ -54,14 +54,26 @@ export class LrcLibProvider implements LyricsProvider {
   async get(np: NowPlaying): Promise<Lyrics> {
     const hit = this.cache.get(np.id);
     if (hit) return hit;
-    const exact = await this.fetchJson<LrcLibTrack>(
-      `${this.base}/api/get?track_name=${encodeURIComponent(np.title)}&artist_name=${encodeURIComponent(np.artist)}` +
-        `&album_name=${encodeURIComponent(np.album)}&duration=${Math.round(np.durationMs / 1000)}`,
-    );
-    let rec: LrcLibTrack | undefined = exact ?? undefined;
+    // The exact-match lookup is the quickest, but the free service is sometimes overloaded (503): then fall back to search
+    // rather than giving up. Only when every lookup fails is the service reported as unavailable.
+    let failures = 0;
+    const attempt = async <T>(url: string): Promise<T | null> => {
+      try {
+        return await this.fetchJson<T>(url);
+      } catch {
+        failures++;
+        return null;
+      }
+    };
+    let rec: LrcLibTrack | undefined =
+      (await attempt<LrcLibTrack>(
+        `${this.base}/api/get?track_name=${encodeURIComponent(np.title)}&artist_name=${encodeURIComponent(np.artist)}` +
+          `&album_name=${encodeURIComponent(np.album)}&duration=${Math.round(np.durationMs / 1000)}`,
+      )) ?? undefined;
     if (!rec) {
-      const found = await this.fetchJson<LrcLibTrack[]>(`${this.base}/api/search?q=${encodeURIComponent(np.artist + ' ' + np.title)}`);
+      const found = await attempt<LrcLibTrack[]>(`${this.base}/api/search?q=${encodeURIComponent(np.artist + ' ' + np.title)}`);
       rec = found ? pickBest(found, np.durationMs) : undefined;
+      if (!rec && failures >= 2) throw new Error('Lyrics service unavailable'); // nothing answered at all: do not cache a false "no lyrics"
     }
     const lyrics = rec ? lyricsFromRecord(rec) : ({ kind: 'none' } as const);
     this.cache.set(np.id, lyrics);
@@ -70,7 +82,11 @@ export class LrcLibProvider implements LyricsProvider {
 
   /** Parsed JSON, or null for "not found" (404). Other failures throw so the UI can say the service is unreachable. */
   private async fetchJson<T>(url: string): Promise<T | null> {
-    const res = await withTimeout(fetch(url), 10000);
+    let res = await withTimeout(fetch(url), 10000);
+    if (res.status >= 500) {
+      await new Promise((r) => setTimeout(r, 1200)); // busy server: one quick retry
+      res = await withTimeout(fetch(url), 10000);
+    }
     if (res.status === 404) return null;
     if (!res.ok) throw new Error('Lyrics service error ' + res.status);
     return (await res.json()) as T;

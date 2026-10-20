@@ -48,7 +48,7 @@ export function setupLyrics(opts: LyricsOptions): {
         view.setLyrics(lyrics);
       },
       () => {
-        if (loadedId === track.id) view.setStatus('Lyrics unavailable. Check the internet connection.');
+        if (loadedId === track.id) view.setStatus('Lyrics service is not answering right now. Try again in a moment.');
       },
     );
   };
