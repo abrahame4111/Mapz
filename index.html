@@ -104,13 +104,29 @@
     <!-- Plain ES5 on purpose: must run even on a WebView too old for the app bundle. -->
     <script>
       (function () {
+        // Boot diagnostics. Quiet by default: routine messages are only logged (not shown). A real crash shows the panel
+        // for 10 seconds. Tap the small "build ..." label in the bottom-left corner to open it on purpose; tap the
+        // panel to close it. If the app code never starts at all, the panel stays up (nothing else would be visible).
         var el = document.getElementById("diag");
-        window.__diag = function (m) { el.textContent += m + "\n"; el.style.display = "block"; };
-        window.__diagHide = function () { el.style.display = "none"; };
+        var hideTimer;
+        function reveal(seconds) {
+          el.style.display = "block";
+          if (hideTimer) clearTimeout(hideTimer);
+          if (seconds) hideTimer = setTimeout(function () { el.style.display = "none"; }, seconds * 1000);
+        }
+        window.__diag = function (m) { el.textContent += m + "\n"; };
+        function problem(m) { window.__diag(m); reveal(10); }
+        window.__diagToggle = function () {
+          if (el.style.display === "block") { if (hideTimer) clearTimeout(hideTimer); el.style.display = "none"; }
+          else reveal(0);
+        };
+        el.onclick = window.__diagToggle;
         window.__diag("Mapz boot | " + navigator.userAgent);
-        window.onerror = function (msg, src, line) { window.__diag("ERROR: " + msg + " @" + String(src).split("/").pop() + ":" + line); };
-        window.addEventListener("unhandledrejection", function (e) { window.__diag("REJECTED: " + (e.reason && e.reason.message || e.reason)); });
-        setTimeout(function () { if (!window.__appStarted) window.__diag("App script did not start (WebView too old?)"); }, 5000);
+        window.onerror = function (msg, src, line) { problem("ERROR: " + msg + " @" + String(src).split("/").pop() + ":" + line); };
+        window.addEventListener("unhandledrejection", function (e) { problem("REJECTED: " + (e.reason && e.reason.message || e.reason)); });
+        setTimeout(function () {
+          if (!window.__appStarted) { window.__diag("App script did not start (WebView too old?)"); reveal(0); }
+        }, 5000);
       })();
     </script>
     <script type="module" src="/src/main.ts"></script>

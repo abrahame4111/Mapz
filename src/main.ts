@@ -32,7 +32,7 @@ function hasWebGL(): boolean {
 }
 
 // Boot diagnostics are drawn on screen because the head unit has no dev tools. See index.html.
-type DiagWindow = { __diag?: (m: string) => void; __diagHide?: () => void; __appStarted?: boolean };
+type DiagWindow = { __diag?: (m: string) => void; __diagToggle?: () => void; __appStarted?: boolean };
 const dw = window as unknown as DiagWindow;
 const diag = (m: string): void => dw.__diag?.(m);
 
@@ -116,7 +116,6 @@ function boot(): void {
   });
   map.on('load', () => {
     diag('map loaded');
-    setTimeout(() => dw.__diagHide?.(), 4000);
   });
 
   // Dev-only handle for console debugging.
@@ -125,6 +124,7 @@ function boot(): void {
   const car = new CarMarker(map, config.start.lng, config.start.lat);
   const interp = new PoseInterpolator();
   const debug = document.getElementById('debug')!;
+  debug.addEventListener('click', () => dw.__diagToggle?.()); // tap the small build label to open/close the diagnostics panel
   const banner = document.getElementById('banner')!;
 
   // Data -> store. Everything downstream reads the store only.
