@@ -5,11 +5,14 @@ import { turnIconSvg } from './turnIcons';
 export type PanelModel =
   | { mode: 'idle'; speed: number }
   | { mode: 'message'; text: string }
-  | { mode: 'nav'; dist: DistanceText; kind: TurnKind; label: string; street: string; remaining: string; speed: number };
+  | { mode: 'nav'; dist: DistanceText; kind: TurnKind };
 
 const el = (id: string): HTMLElement => document.getElementById(id)!;
 
-/** Right-hand panel: speed when idle, live turn-by-turn when navigating. Only touches the DOM when something changed. */
+/**
+ * Right-hand panel. Idle: your speed. Navigating: ONLY the turn symbol and the distance to that turn
+ * (plus a short status line while a route is being computed). Only touches the DOM when something changed.
+ */
 export class TurnPanel {
   private readonly idle = el('panel-idle');
   private readonly nav = el('panel-nav');
@@ -48,18 +51,12 @@ export class TurnPanel {
       this.set('turn-dist-value', '');
       this.set('turn-dist-unit', '');
       this.setIcon('');
-      this.set('turn-label', m.text);
-      this.set('turn-street', '');
-      this.set('nav-remaining', '');
-      this.set('nav-speed', '');
+      this.set('turn-msg', m.text);
       return;
     }
+    this.set('turn-msg', '');
     this.set('turn-dist-value', m.dist.value);
     this.set('turn-dist-unit', m.dist.unit);
     this.setIcon(m.kind);
-    this.set('turn-label', m.label);
-    this.set('turn-street', m.street);
-    this.set('nav-remaining', m.remaining);
-    this.set('nav-speed', m.speed + ' km/h');
   }
 }

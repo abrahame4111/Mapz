@@ -5,7 +5,7 @@ import { SearchPanel } from '../hud/searchPanel';
 import { TurnPanel, type PanelModel } from '../hud/turnPanel';
 import type { MapType } from '../map/maplibre';
 import { RouteLayer } from '../map/routeLayer';
-import { formatDistance, turnLabel } from '../nav/format';
+import { formatDistance } from '../nav/format';
 import { PhotonProvider } from '../nav/geocode';
 import { Navigator } from '../nav/navigator';
 import { OsrmProvider } from '../nav/routing';
@@ -101,18 +101,13 @@ export function setupNavigation(opts: NavigationOptions): { tick: () => void } {
     if (s.status === 'routing') return { mode: 'message', text: 'Finding route...' };
     if (s.status === 'rerouting') return { mode: 'message', text: 'Rerouting...' };
     if (s.status === 'error') return { mode: 'message', text: 'Route unavailable' };
-    if ((s.status === 'active' || s.status === 'arrived') && s.progress) {
-      const { next, remainingM } = s.progress;
-      const left = formatDistance(remainingM);
-      return {
-        mode: 'nav',
-        dist: formatDistance(next.distanceM),
-        kind: next.step.kind,
-        label: turnLabel(next.step.kind),
-        street: next.step.kind === 'arrive' ? (s.destination?.title ?? '') : next.step.name,
-        remaining: left.unit ? left.value + ' ' + left.unit + ' left' : 'Arriving',
-        speed,
-      };
+    // The panel shows only the turn symbol and the distance to that turn. Nothing about arrival: once arrived,
+    // the popup takes over and the panel goes back to the normal speed view.
+    if (s.status === 'active' && s.progress) {
+      const { next } = s.progress;
+      // No turns left: show "straight on" with the distance still to go, not an arrival symbol.
+      const kind = next.step.kind === 'arrive' ? 'straight' : next.step.kind;
+      return { mode: 'nav', dist: formatDistance(next.distanceM), kind };
     }
     return { mode: 'idle', speed };
   };
