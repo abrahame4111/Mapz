@@ -24,10 +24,13 @@ export type Lyrics =
   | { kind: 'instrumental' }
   | { kind: 'none' };
 
+/** Why a source cannot report: the user must log in, or the service cannot be reached right now. */
+export type SourceProblem = 'needs-login' | 'unreachable';
+
 /** Where the "what is playing" information comes from (Spotify account API; a demo source for development). */
 export interface NowPlayingSource {
   /** Begin reporting. `null` means nothing is playing. May be called again after stop(). */
-  start(onChange: (np: NowPlaying | null) => void): void;
+  start(onChange: (np: NowPlaying | null) => void, onProblem?: (p: SourceProblem) => void): void;
   stop(): void;
 }
 

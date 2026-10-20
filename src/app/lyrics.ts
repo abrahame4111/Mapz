@@ -1,11 +1,16 @@
 import { LyricsView } from '../hud/lyricsView';
 import { positionMs } from '../lyrics/lrc';
-import type { LyricsProvider, NowPlaying, NowPlayingSource } from '../lyrics/types';
+import type { LyricsProvider, NowPlaying, NowPlayingSource, SourceProblem } from '../lyrics/types';
 
 export interface LyricsOptions {
-  /** Where "what is playing" comes from. Undefined until a real source (Spotify) is connected. */
+  /** Where "what is playing" comes from. Undefined when no source is configured (no Spotify Client ID). */
   source: NowPlayingSource | undefined;
   provider: LyricsProvider;
+  /** Starts the Spotify login (leaves the app for Spotify's page and returns). */
+  connect?: () => void;
+  /** Logging in needs typing, so it is blocked while the car moves. */
+  canConnect?: () => boolean;
+  toast?: (msg: string) => void;
 }
 
 const el = (id: string): HTMLElement => document.getElementById(id)!;
@@ -14,12 +19,19 @@ const el = (id: string): HTMLElement => document.getElementById(id)!;
  * Lyrics mode: the music button (slot 3) turns the right panel into the lyrics card. We only ask the source what is
  * playing while the card is open, and look up lyrics once per song.
  */
-export function setupLyrics(opts: LyricsOptions): { tick: (nowMs: number) => void; readonly active: boolean } {
+export function setupLyrics(opts: LyricsOptions): {
+  tick: (nowMs: number) => void;
+  /** Open the card, optionally with a message (e.g. "Login was cancelled") shown if a login is needed. */
+  open: (notice?: string) => void;
+  readonly active: boolean;
+} {
   const view = new LyricsView();
   const btn = el('btn-lyrics');
+  const connectBtn = el('lyr-connect');
   let active = false;
   let np: NowPlaying | null = null;
   let loadedId: string | undefined;
+  let notice: string | undefined;
 
   const load = (track: NowPlaying): void => {
     loadedId = track.id;
@@ -37,6 +49,8 @@ export function setupLyrics(opts: LyricsOptions): { tick: (nowMs: number) => voi
   };
 
   const onNowPlaying = (next: NowPlaying | null): void => {
+    connectBtn.hidden = true;
+    notice = undefined;
     np = next;
     if (!next) {
       loadedId = undefined;
@@ -47,29 +61,57 @@ export function setupLyrics(opts: LyricsOptions): { tick: (nowMs: number) => voi
     if (next.id !== loadedId) load(next);
   };
 
+  const onProblem = (p: SourceProblem): void => {
+    if (p === 'needs-login') {
+      np = null;
+      loadedId = undefined;
+      view.setSong('', '');
+      view.setStatus(notice ?? 'Connect your Spotify account to see lyrics.');
+      connectBtn.hidden = !opts.connect;
+      return;
+    }
+    // A network blip while lyrics are on screen should not wipe them; only say so if there is nothing to show.
+    if (loadedId === undefined) {
+      view.setStatus("Can't reach Spotify. Check the internet connection.");
+      connectBtn.hidden = true;
+    }
+  };
+
   const setActive = (on: boolean): void => {
     active = on;
     btn.classList.toggle('on', on);
     btn.setAttribute('aria-pressed', String(on));
     view.show(on);
+    connectBtn.hidden = true;
     if (!on) {
       opts.source?.stop();
       return;
     }
     if (!opts.source) {
       view.setSong('', '');
-      view.setStatus('Spotify is not connected yet.');
+      view.setStatus('Spotify is not set up in this build.');
       return;
     }
     view.setStatus('Looking for the current song...');
-    opts.source.start(onNowPlaying);
+    opts.source.start(onNowPlaying, onProblem);
   };
 
   btn.addEventListener('click', () => setActive(!active));
+  connectBtn.addEventListener('click', () => {
+    if (opts.canConnect && !opts.canConnect()) {
+      opts.toast?.('Stop the car to connect Spotify');
+      return;
+    }
+    opts.connect?.();
+  });
 
   return {
     get active(): boolean {
       return active;
+    },
+    open(msg?: string): void {
+      notice = msg;
+      if (!active) setActive(true);
     },
     tick(nowMs: number): void {
       if (!active || !np) return;

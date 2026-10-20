@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>NFS-Nav: Spotify</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #07080d; color: #fff; font-family: Roboto, "Segoe UI", Arial, sans-serif; }
+  body { display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px; box-sizing: border-box; }
+  p { font-size: 20px; margin: 8px 0; }
+  a { color: #b066ff; }
+  .dim { color: #99a; font-size: 15px; }
+</style>
+</head>
+<body>
+<div>
+  <p id="msg">Returning to NFS-Nav...</p>
+  <p class="dim" id="sub"></p>
+</div>
+<!--
+  Spotify's redirect target (registered in the Spotify dashboard as https://mapz.live/api/spotify/callback).
+  It holds no secrets and does no token exchange: it only hands the one-time authorization code back to the app, which
+  completes the login itself using PKCE. Plain ES5 on purpose so it also runs on the head unit's old WebView.
+
+  The `state` value (created by the app) says where to send the browser back to. Only addresses on the allow-list
+  below are honoured, so this page cannot be used as an open redirect.
+-->
+<script>
+(function () {
+  var ALLOWED_RETURN = ['https://localhost', 'http://localhost:5173', 'http://127.0.0.1:5173'];
+  var msg = document.getElementById('msg');
+  var sub = document.getElementById('sub');
+
+  function fail(text) {
+    msg.textContent = text;
+    sub.textContent = 'You can close this page and try again from the app.';
+  }
+
+  function decodeState(s) {
+    try {
+      s = s.replace(/-/g, '+').replace(/_/g, '/');
+      while (s.length % 4) s += '=';
+      return JSON.parse(atob(s));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  var params = new URLSearchParams(location.search);
+  var state = params.get('state');
+  var code = params.get('code');
+  var error = params.get('error');
+  var parsed = state ? decodeState(state) : null;
+
+  if (!parsed || typeof parsed.returnTo !== 'string') return fail('This login link is not valid.');
+  if (ALLOWED_RETURN.indexOf(parsed.returnTo) === -1) return fail('Unknown return address.');
+  if (!code && !error) return fail('Spotify did not send a login result.');
+
+  var hash = error ? 'spotify_error=' + encodeURIComponent(error) : 'spotify_code=' + encodeURIComponent(code);
+  hash += '&state=' + encodeURIComponent(state);
+  location.replace(parsed.returnTo + '/#' + hash);
+})();
+</script>
+<noscript><p>This page needs JavaScript to return to the app.</p></noscript>
+</body>
+</html>

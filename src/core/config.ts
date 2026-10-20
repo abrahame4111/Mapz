@@ -10,6 +10,15 @@ export const config = {
     lat: Number(env.VITE_START_LAT ?? 59.3293),
     lng: Number(env.VITE_START_LNG ?? 18.0686),
   },
+  /**
+   * Spotify login (lyrics mode). The Client ID is public and comes from the build environment (.env.local). There is
+   * deliberately NO client secret anywhere in the app: login uses PKCE, which does not need one.
+   */
+  spotify: {
+    clientId: (env.VITE_SPOTIFY_CLIENT_ID as string | undefined) ?? '',
+    redirectUri: (env.VITE_SPOTIFY_REDIRECT_URI as string | undefined) ?? 'https://mapz.live/api/spotify/callback',
+    scope: 'user-read-currently-playing',
+  },
   map: { zoom: 16, minZoom: 10, maxZoom: 19 },
   camera: {
     /** Time constant of the map rotation; lower = snappier, higher = calmer. */

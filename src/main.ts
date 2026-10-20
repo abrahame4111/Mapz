@@ -19,6 +19,8 @@ import { setupNavigation } from './app/navigation';
 import { setupLyrics } from './app/lyrics';
 import { DemoLyricsProvider, DemoNowPlaying } from './lyrics/demo';
 import { LrcLibProvider } from './lyrics/lrclib';
+import { SpotifyAuth } from './spotify/auth';
+import { SpotifyNowPlaying } from './spotify/nowPlaying';
 
 function hasWebGL(): boolean {
   try {
@@ -141,16 +143,30 @@ function boot(): void {
           speedFactor: Number(params.get('simspeed')) || 1, // dev only: ?simspeed=5 drives 5x faster
         });
   diag('source: ' + kind);
-  // Lyrics mode. The real now-playing source (Spotify account) is not connected yet; `?lyricsdemo` uses a pretend song.
-  const demoSong = params.has('lyricsdemo');
-  const lyrics = setupLyrics({
-    source: demoSong ? new DemoNowPlaying() : undefined,
-    provider: demoSong ? new DemoLyricsProvider() : new LrcLibProvider(),
-  });
   const nav = setupNavigation({
     map,
     sim: source instanceof Simulator ? source : undefined,
     lockEnabled: !params.has('nolock'), // dev only: ?nolock lets search work while the simulator drives
+  });
+  // Lyrics mode: the music button turns the right panel into a lyrics card. What is playing comes from the Spotify
+  // account (the phone plays over Bluetooth). `?lyricsdemo` swaps in a pretend song for trying the screen without a login.
+  const demoSong = params.has('lyricsdemo');
+  const spotify = new SpotifyAuth(config.spotify);
+  const lyrics = setupLyrics({
+    source: demoSong ? new DemoNowPlaying() : spotify.configured ? new SpotifyNowPlaying(spotify) : undefined,
+    provider: demoSong ? new DemoLyricsProvider() : new LrcLibProvider(),
+    connect: () => {
+      // Leaves the app for Spotify's login page; the redirect page sends us back here with the result in the address.
+      void spotify.beginLogin(location.origin).then((url) => location.assign(url), () => nav.toast('Could not start the Spotify login'));
+    },
+    canConnect: () => !nav.isLocked(),
+    toast: nav.toast,
+  });
+  // Back from Spotify's login page? Finish the login (the result is in the address) and reopen the lyrics card.
+  void spotify.handleCallback(location.hash).then((res) => {
+    if (res === 'none') return;
+    history.replaceState(null, '', location.pathname + location.search);
+    lyrics.open(res === 'ok' ? undefined : res.error);
   });
   car.setVisible(kind === 'sim'); // with real GPS, show the car only once we actually have a position
   let firstFix = true;
