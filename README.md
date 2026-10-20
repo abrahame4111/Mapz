@@ -23,7 +23,8 @@ A stylized, game-inspired **minimap for a car head unit**. NFS-Nav shows a dark,
 - Arrival popup with a neon checkered flag and a Close button (Close clears the route from the map)
 - Search is locked while the car moves (safety)
 - Heading-up camera: the map rotates so your direction of travel always points up (smoothed; `?north` for north-up)
-- Pinch-to-zoom and large + / - buttons (bottom right); the chosen zoom is remembered
+- Pinch-to-zoom (remembered) and a Map button that switches between the circular minimap and a full-screen map; the car stays in the same spot on screen
+- Glassmorphism turn panel (frosted blur where the browser supports it, tinted glass on older WebViews)
 - Glowing car marker that rotates with heading
 - Real GPS from the device (`navigator.geolocation`) with accuracy filtering, heading smoothing and a "GPS signal lost" banner
 - Simulated drive on a loop with varying speed and optional GPS dropout (`?dropout`)

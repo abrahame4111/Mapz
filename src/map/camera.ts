@@ -11,15 +11,20 @@ export function smoothBearing(current: number, target: number, dtMs: number, tau
   return normalizeAngle(current + angleDiff(current, target) * k);
 }
 
-/** Exponential smoothing for plain (non-angular) values such as zoom. Frame-rate independent like smoothBearing. */
-export function smoothValue(current: number, target: number, dtMs: number, tauMs: number): number {
-  if (dtMs <= 0) return current;
-  return current + (target - current) * (1 - Math.exp(-dtMs / tauMs));
-}
-
-export const clamp = (v: number, min: number, max: number): number => (v < min ? min : v > max ? max : v);
-
-/** Next zoom target for a +/- button press: one step from where the camera currently is, within limits. */
-export function stepZoom(current: number, direction: 1 | -1, step: number, min: number, max: number): number {
-  return clamp(current + direction * step, min, max);
+/**
+ * Camera padding that makes the map's "centre" land on `anchor` (screen pixels) instead of the middle of the
+ * map element. Full-screen mode uses it to keep the car exactly where the minimap's centre is (a little left of
+ * the screen centre), so switching modes never moves the car. One side per axis is padded, the other is 0.
+ */
+export function paddingFor(
+  anchor: { x: number; y: number },
+  width: number,
+  height: number,
+): { left: number; right: number; top: number; bottom: number } {
+  return {
+    left: anchor.x > width / 2 ? 2 * anchor.x - width : 0,
+    right: anchor.x < width / 2 ? width - 2 * anchor.x : 0,
+    top: anchor.y > height / 2 ? 2 * anchor.y - height : 0,
+    bottom: anchor.y < height / 2 ? height - 2 * anchor.y : 0,
+  };
 }

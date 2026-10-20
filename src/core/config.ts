@@ -14,10 +14,6 @@ export const config = {
   camera: {
     /** Time constant of the map rotation; lower = snappier, higher = calmer. */
     bearingTauMs: 500,
-    /** Zoom button press moves the target by this many levels. */
-    zoomStep: 1,
-    /** Smoothing of the animated zoom after a button press. */
-    zoomTauMs: 150,
   },
   /** Render cap; head unit target is 30 fps (options 30/20/15). */
   fpsCap: 30,

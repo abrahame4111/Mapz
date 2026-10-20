@@ -21,16 +21,18 @@
         <div class="slot reserved"></div>
       </div>
 
-      <!-- Middle: the circular minimap -->
+      <!-- Middle: the circular minimap. #minimap is a fixed square that always stays in the layout; #map-box inside it is
+           the map, which becomes full-screen when the Map button is pressed (the car stays at this square's centre). -->
       <div id="center">
         <div id="minimap">
-          <div id="map"></div>
-          <div id="mask"></div>
-          <div id="ring"></div>
-          <div id="zoom-controls">
-            <button id="zoom-in" type="button" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg></button>
-            <button id="zoom-out" type="button" aria-label="Zoom out"><svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg></button>
+          <div id="map-box">
+            <div id="map"></div>
+            <div id="mask"></div>
+            <div id="ring"></div>
           </div>
+          <button id="btn-map" type="button" aria-label="Toggle full-screen map" aria-pressed="false">
+            <svg viewBox="0 0 24 24"><path d="M3 6.5 L9 4 L15 6.5 L21 4 V17.5 L15 20 L9 17.5 L3 20 Z M9 4 V17.5 M15 6.5 V20"/></svg>
+          </button>
         </div>
       </div>
 

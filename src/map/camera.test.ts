@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clamp, smoothBearing, smoothValue, stepZoom } from './camera';
+import { paddingFor, smoothBearing } from './camera';
 
 const offset = (deg: number): number => Math.min(deg, 360 - deg);
 
@@ -35,23 +35,17 @@ describe('smoothBearing', () => {
   });
 });
 
-
-describe('zoom helpers', () => {
-  it('steps and clamps zoom', () => {
-    expect(stepZoom(16, 1, 1, 10, 19)).toBe(17);
-    expect(stepZoom(16.4, -1, 1, 10, 19)).toBeCloseTo(15.4);
-    expect(stepZoom(19, 1, 1, 10, 19)).toBe(19);
-    expect(stepZoom(10.5, -1, 1, 10, 19)).toBe(10);
-    expect(clamp(5, 0, 3)).toBe(3);
+describe('paddingFor', () => {
+  it('puts the visible centre on the anchor (minimap centre, left of screen centre)', () => {
+    const p = paddingFor({ x: 385, y: 270.5 }, 1024, 541);
+    expect(p).toEqual({ left: 0, right: 254, top: 0, bottom: 0 });
+    // visible centre = middle of the area left after padding
+    expect(p.left + (1024 - p.left - p.right) / 2).toBe(385);
   });
-
-  it('smooths a value toward its target without overshoot', () => {
-    expect(smoothValue(10, 20, 0, 150)).toBe(10);
-    let z = 16;
-    for (let i = 0; i < 60; i++) {
-      z = smoothValue(z, 17, 33, 150);
-      expect(z).toBeLessThanOrEqual(17);
-    }
-    expect(z).toBeCloseTo(17, 2);
+  it('is a no-op when the anchor is the middle of the screen', () => {
+    expect(paddingFor({ x: 512, y: 270.5 }, 1024, 541)).toEqual({ left: 0, right: 0, top: 0, bottom: 0 });
+  });
+  it('pads the other side when the anchor is right of / below centre', () => {
+    expect(paddingFor({ x: 700, y: 400 }, 1000, 500)).toEqual({ left: 400, right: 0, top: 300, bottom: 0 });
   });
 });

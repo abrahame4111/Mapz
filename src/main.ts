@@ -12,9 +12,9 @@ import type { VehicleDataSource } from './data/types';
 import { buildBaseStyle } from './map/style';
 import { CarMarker } from './map/carMarker';
 import { PoseInterpolator } from './map/interpolate';
-import { smoothBearing, smoothValue, stepZoom } from './map/camera';
-import { bindZoomControls } from './hud/zoomControls';
+import { paddingFor, smoothBearing } from './map/camera';
 import { loadZoom, saveZoom } from './core/zoomStore';
+import { loadFullscreen, saveFullscreen } from './core/prefs';
 import { setupNavigation } from './app/navigation';
 
 function hasWebGL(): boolean {
@@ -47,6 +47,10 @@ function boot(): void {
     return;
   }
 
+  // Map mode (circular minimap or full screen) decides the map container's size, so set it before creating the map.
+  let fullscreen = loadFullscreen();
+  document.body.classList.toggle('full', fullscreen);
+
   const map = new MlMap({
     container: 'map',
     style: buildBaseStyle(),
@@ -72,6 +76,30 @@ function boot(): void {
   map.touchZoomRotate.enable({ around: 'center' });
   map.scrollZoom.enable({ around: 'center' }); // mouse wheel on the laptop
   map.touchZoomRotate.disableRotation(); // pinch zooms only; rotation is the camera's job
+
+  // Map button: circular minimap <-> full-screen map. The #minimap square stays in the layout in both modes; in full
+  // screen the map fills the screen and camera padding keeps the car exactly at that square's centre (a little left
+  // of the screen centre), so the car never moves when switching.
+  const minimapEl = document.getElementById('minimap')!;
+  const mapBtn = document.getElementById('btn-map')!;
+  const applyMapMode = (): void => {
+    mapBtn.setAttribute('aria-pressed', String(fullscreen));
+    map.resize();
+    if (fullscreen) {
+      const r = minimapEl.getBoundingClientRect();
+      map.setPadding(paddingFor({ x: r.left + r.width / 2, y: r.top + r.height / 2 }, innerWidth, innerHeight));
+    } else {
+      map.setPadding({ left: 0, right: 0, top: 0, bottom: 0 });
+    }
+  };
+  applyMapMode();
+  mapBtn.addEventListener('click', () => {
+    fullscreen = !fullscreen;
+    document.body.classList.toggle('full', fullscreen);
+    saveFullscreen(fullscreen);
+    applyMapMode();
+  });
+  window.addEventListener('resize', applyMapMode);
 
   // Attribution is required by the OSM/OpenFreeMap licences; keep it visible.
   map.addControl(new AttributionControl({ compact: true }));
@@ -137,16 +165,6 @@ function boot(): void {
   const northUp = params.has('north');
   let bearing: number | undefined;
   let lastFrameAt = 0;
-  // Zoom: pinch is handled by MapLibre; + / - buttons set a target that we animate here, because our per-frame
-  // jumpTo() would cancel a normal easeTo().
-  let zoomTarget: number | undefined;
-  bindZoomControls((dir) => {
-    zoomTarget = stepZoom(zoomTarget ?? map.getZoom(), dir, config.camera.zoomStep, config.map.minZoom, config.map.maxZoom);
-  });
-  // A pinch (user input) takes over from any button animation in progress.
-  map.on('zoomstart', (e) => {
-    if ((e as { originalEvent?: unknown }).originalEvent) zoomTarget = undefined;
-  });
   // MapLibre cancels an in-progress pinch whenever we call jumpTo(), so the follow-camera pauses while two
   // fingers are down (and briefly after, plus after a mouse-wheel zoom on the laptop), then resumes.
   let cameraPausedUntil = 0;
@@ -194,15 +212,7 @@ function boot(): void {
     lastFrameAt = now;
     bearing = bearing === undefined ? pose.heading : smoothBearing(bearing, pose.heading, dt, config.camera.bearingTauMs);
     if (now < cameraPausedUntil) return; // a gesture is in progress; do not fight it
-    let zoom: number | undefined;
-    if (zoomTarget !== undefined) {
-      zoom = smoothValue(map.getZoom(), zoomTarget, dt, config.camera.zoomTauMs);
-      if (Math.abs(zoomTarget - zoom) < 0.01) {
-        zoom = zoomTarget;
-        zoomTarget = undefined;
-      }
-    }
-    map.jumpTo(zoom === undefined ? { center: [pose.lng, pose.lat], bearing: northUp ? 0 : bearing } : { center: [pose.lng, pose.lat], bearing: northUp ? 0 : bearing, zoom });
+    map.jumpTo({ center: [pose.lng, pose.lat], bearing: northUp ? 0 : bearing });
   };
   requestAnimationFrame(frame);
 }

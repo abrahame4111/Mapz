@@ -10,7 +10,7 @@ svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: 
 #app { position: absolute; left: 0; top: 0; right: 0; bottom: 0; display: flex; align-items: center; }
 
 /* ---------- left: six button slots ---------- */
-#left { width: 15vh; flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+#left { position: relative; z-index: 3; width: 15vh; flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .slot { width: 11vh; height: 11vh; margin: 0 0 1.6vh 0; padding: 0; box-sizing: border-box; border-radius: 2.4vh; border: 2px solid #b066ff; background: rgba(176, 102, 255, 0.1); color: #d9b8ff; box-shadow: 0 0 1.6vh rgba(122, 60, 255, 0.45); -webkit-tap-highlight-color: transparent; touch-action: manipulation; display: flex; align-items: center; justify-content: center; }
 .slot:last-child { margin-bottom: 0; }
 .slot svg { width: 5.6vh; height: 5.6vh; stroke-width: 2.4; }
@@ -22,24 +22,39 @@ svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: 
 /* ---------- middle: circular minimap ---------- */
 #center { flex: 1; display: flex; align-items: center; justify-content: center; }
 #minimap { position: relative; width: 92vh; height: 92vh; }
-#map, #mask, #ring { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+#map-box, #map, #mask, #ring { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
 /* The map is square; the corners are painted over so it reads as a circle without clipping the WebGL canvas. */
 #mask { z-index: 1; pointer-events: none; background: radial-gradient(circle closest-side, rgba(7, 8, 13, 0) 98.4%, #07080d 99.2%); }
 #ring { z-index: 1; pointer-events: none; box-sizing: border-box; border-radius: 50%; border: 3px solid #b066ff; box-shadow: 0 0 2.4vh #7a3cff, inset 0 0 3.4vh rgba(122, 60, 255, 0.55); }
 .maplibregl-ctrl-attrib { background: rgba(7, 8, 13, 0.7) !important; color: #889 !important; }
 .maplibregl-ctrl-attrib a { color: #aab !important; }
 
-/* Zoom buttons: bottom right of the minimap, stacked, above the attribution. */
-#zoom-controls { position: absolute; right: 4px; bottom: 36px; z-index: 6; display: flex; flex-direction: column; }
-#zoom-controls button { width: 50px; height: 50px; padding: 0; margin: 0 0 8px 0; border: 2px solid #b066ff; border-radius: 9px; background: rgba(7, 8, 13, 0.75); color: #b066ff; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-#zoom-controls button:last-child { margin-bottom: 0; }
-#zoom-controls button:active { background: rgba(176, 102, 255, 0.35); }
-#zoom-controls svg { width: 25px; height: 25px; stroke-width: 3; }
-@media (max-height: 480px) { #zoom-controls button { width: 42px; height: 42px; } }
+/* Map button: bottom right of the minimap square, above the attribution. It stays put in both map modes. */
+#btn-map { position: absolute; right: 4px; bottom: 36px; z-index: 6; width: 50px; height: 50px; padding: 0; border: 2px solid #b066ff; border-radius: 9px; background: rgba(7, 8, 13, 0.75); color: #b066ff; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+#btn-map svg { width: 28px; height: 28px; stroke-width: 2.2; }
+#btn-map:active, #btn-map[aria-pressed="true"] { background: rgba(176, 102, 255, 0.35); }
+@media (max-height: 480px) { #btn-map { width: 42px; height: 42px; } }
+
+/* Full-screen map: the map fills the screen behind the buttons and panel, the circle mask and ring go away, and the
+   car stays where the minimap centre is (camera padding, see main.ts). */
+body.full #map-box { position: fixed; z-index: 0; }
+body.full #mask, body.full #ring { display: none; }
+/* The right panel would cover the default bottom-right attribution, which must stay visible. */
+body.full .maplibregl-ctrl-bottom-right { left: 90px; right: auto; }
 
 /* ---------- right: speed / turn-by-turn ---------- */
-#right { width: 62vh; height: 92vh; flex: none; box-sizing: border-box; padding-right: 2.4vh; display: flex; }
-#panel { flex: 1; position: relative; overflow: hidden; border-radius: 3.4vh; border: 2px solid rgba(176, 102, 255, 0.6); background: linear-gradient(180deg, rgba(26, 18, 52, 0.92), rgba(10, 8, 22, 0.94)); box-shadow: 0 0 2.6vh rgba(122, 60, 255, 0.5), inset 0 0 3vh rgba(122, 60, 255, 0.18); }
+#right { position: relative; z-index: 3; width: 62vh; height: 92vh; flex: none; box-sizing: border-box; padding-right: 2.4vh; display: flex; }
+/*
+ * Glass panel (Apple / Spotify-lyrics style): a frosted pane with a bright top edge, a soft highlight and depth.
+ * The unit's Chrome 61 has no backdrop-filter (arrived in Chrome 76), so the base style is a tinted translucent
+ * glass that is legible on its own; where blur IS supported (@supports below) the tint is lighter and the map
+ * behind is genuinely frosted.
+ */
+#panel { --glass-tint: rgba(18, 12, 38, 0.74); flex: 1; position: relative; overflow: hidden; border-radius: 3.4vh; border: 1px solid rgba(214, 190, 255, 0.3); background: linear-gradient(145deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 38%, rgba(176, 102, 255, 0.1) 100%), var(--glass-tint); box-shadow: 0 1.2vh 4vh rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 0 rgba(255, 255, 255, 0.08), inset 0 0 5vh rgba(176, 102, 255, 0.14); }
+#panel::before { content: ''; position: absolute; left: -20%; top: -30%; width: 90%; height: 70%; background: radial-gradient(closest-side, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0)); pointer-events: none; }
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  #panel { --glass-tint: rgba(24, 16, 52, 0.36); -webkit-backdrop-filter: blur(26px) saturate(1.7); backdrop-filter: blur(26px) saturate(1.7); }
+}
 #panel-idle, #panel-nav { position: absolute; left: 0; top: 0; width: 100%; height: 100%; box-sizing: border-box; padding: 2.4vh 2vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 
 #idle-speed { font-size: 22vh; line-height: 1; font-weight: 800; letter-spacing: -0.02em; text-shadow: 0 0 2vh rgba(176, 102, 255, 0.7); }
