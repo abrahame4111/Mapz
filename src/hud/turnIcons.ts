@@ -2,7 +2,7 @@ import type { TurnKind } from '../nav/types';
 
 // Apple Maps-style manoeuvre arrows: bold rounded white stroke, a stem coming from below, a softly
 // rounded corner, a solid arrowhead, and a faint ghost of the road that continues straight on.
-// Generated from geometry so every direction shares the same proportions. 100x100 viewBox.
+// Generated from geometry so every direction shares the same proportions. 100x100 drawing area; the viewBox adds margin because a plain left/right arrowhead reaches x=109 (it was cropped on the unit).
 
 const STROKE = 9;
 const WHITE = '#fff';
@@ -82,7 +82,7 @@ export function turnIconSvg(kind: TurnKind): string {
   else if (kind === 'uturn-right') body = uturn(true);
   else if (kind === 'uturn-left') body = uturn(false);
   else body = turn(kind);
-  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${body}</svg>`;
+  return `<svg viewBox="-8 -4 116 108" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${body}</svg>`;
 }
 
 export const ALL_TURN_KINDS: TurnKind[] = [
