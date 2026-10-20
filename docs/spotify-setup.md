@@ -28,10 +28,12 @@ Tokens are kept in the WebView's storage and refreshed automatically.
 The folder `site/` is the whole website: it must answer at `https://mapz.live/api/spotify/callback` (with or without a
 trailing slash, and keep the `?code=...` query).
 
-### GitHub Pages (simplest, same repo)
+### GitHub Pages (simplest, same repo; chosen)
 
-1. Repo Settings > Pages > Build and deployment: source "GitHub Actions" (or deploy the `site/` folder).
-2. Add a file `site/CNAME` containing `mapz.live`.
+Already in the repo: `.github/workflows/pages.yml` (publishes `site/`) and `site/CNAME`. You do:
+
+1. Repo Settings > Pages > Build and deployment: Source = "GitHub Actions".
+2. Same page, Custom domain = `mapz.live`, Save.
 3. DNS at your domain registrar: four `A` records for `mapz.live` pointing at GitHub's Pages addresses
    (`185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`; check GitHub's docs for the current list).
 4. In Pages settings enable "Enforce HTTPS" once the certificate is ready.
