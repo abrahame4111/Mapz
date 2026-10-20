@@ -64,6 +64,10 @@ export function parseOrsRoute(json: unknown): Route {
     } else if (s.type === 9) {
       kind = turnFromGeometry(points, s.way_points[0], s.way_points[1]) > 0 ? 'uturn-right' : 'uturn-left';
     }
+    if ((s.type === 2 || s.type === 3) && Math.abs(turnFromGeometry(points, s.way_points[0], s.way_points[1])) >= 150) {
+      // ORS calls a near-reversal a sharp turn: show it as the U-turn it is.
+      kind = turnFromGeometry(points, s.way_points[0], s.way_points[1]) > 0 ? 'uturn-right' : 'uturn-left';
+    }
     // depart (11), exit roundabout (8) and plain "continue straight" (6) tell the driver nothing new.
     if (kind && s.type !== 10) steps.push({ kind, atM: at * scale, name });
     at += s.distance;

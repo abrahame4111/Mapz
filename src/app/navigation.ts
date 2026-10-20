@@ -39,7 +39,10 @@ export function setupNavigation(opts: NavigationOptions): { tick: (panelTakenOve
     new OsrmProvider(undefined, 8000),
     new OsrmProvider('https://routing.openstreetmap.de/routed-car', 15000),
   ];
-  const navigator = new Navigator(new FallbackRouting(...routingProviders));
+  const navigator = new Navigator(new FallbackRouting(...routingProviders), () => {
+    const v = vehicleStore.get();
+    return v.hasFix && v.speed > 3 ? v.heading : undefined; // below ~3 km/h the heading is just the last one held
+  });
   const routeLayer = new RouteLayer(opts.map);
   const panel = new TurnPanel();
   const toastEl = el('toast');

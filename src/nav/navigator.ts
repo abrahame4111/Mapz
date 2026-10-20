@@ -1,3 +1,4 @@
+import { withWrongWayUturn } from './uturn';
 import type { LatLng } from '../core/geo';
 import { createStore, type Store } from '../core/store';
 import type { Path } from '../data/path';
@@ -34,14 +35,18 @@ export class Navigator {
   private lastRerouteAt = -Infinity;
   private lastPos: LatLng | undefined;
 
-  constructor(private readonly routing: RoutingProvider) {}
+  /** `getHeading` gives the car's travel direction, or undefined when it is not moving (so a stale heading is never used). */
+  constructor(
+    private readonly routing: RoutingProvider,
+    private readonly getHeading: () => number | undefined = () => undefined,
+  ) {}
 
   async start(dest: Place, from: LatLng): Promise<void> {
     const id = ++this.requestId;
     this.lastPos = from;
     this.store.set({ ...IDLE, status: 'routing', destination: dest });
     try {
-      const route = await this.routing.route(from, dest);
+      const route = withWrongWayUturn(await this.routing.route(from, dest), this.getHeading());
       if (id !== this.requestId) return; // cancelled or superseded while waiting
       this.path = routePath(route);
       this.offRouteSince = undefined;
@@ -88,7 +93,7 @@ export class Navigator {
     const id = ++this.requestId;
     this.store.set({ status: 'rerouting' });
     try {
-      const route = await this.routing.route(from, dest);
+      const route = withWrongWayUturn(await this.routing.route(from, dest), this.getHeading());
       if (id !== this.requestId) return;
       this.path = routePath(route);
       this.offRouteSince = undefined;
