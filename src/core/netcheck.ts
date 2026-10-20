@@ -14,6 +14,7 @@ export const CHECK_TARGETS: CheckTarget[] = [
   { name: 'map tiles (Google cert)', url: 'https://tiles.openfreemap.org/planet' },
   { name: 'search Photon (LetsEncrypt YR)', url: 'https://photon.komoot.io/api/?q=Bengaluru&limit=1' },
   { name: 'search Nominatim (LetsEncrypt YR)', url: 'https://nominatim.openstreetmap.org/search?q=Bengaluru&format=json&limit=1' },
+  { name: 'route ORS (LetsEncrypt YR)', url: 'https://api.openrouteservice.org/v2/health' },
   { name: 'route OSRM (LetsEncrypt YE)', url: 'https://router.project-osrm.org/route/v1/driving/77.74,13.06;77.75,13.07?overview=false' },
   { name: 'route FOSSGIS (LetsEncrypt YE)', url: 'https://routing.openstreetmap.de/routed-car/route/v1/driving/77.74,13.06;77.75,13.07?overview=false' },
   { name: 'lyrics LRCLIB', url: 'https://lrclib.net/api/search?q=a' },

@@ -11,6 +11,8 @@ export const config = {
     lng: Number(env.VITE_START_LNG ?? 18.0686),
   },
   /** Optional Cloudflare Pages relay for routing (functions/, docs/route-relay.md). The head unit cannot reach the public OSRM servers directly. */
+  /** OpenRouteService key (free). Public once built into the app, so only ever use a free, replaceable key. Comes from .env.local. */
+  orsApiKey: (env.VITE_ORS_API_KEY as string | undefined) ?? '',
   routeRelayUrl: ((env.VITE_ROUTE_RELAY_URL as string | undefined) ?? '').replace(/\/+$/, ''),
   /**
    * Spotify login (lyrics mode). The Client ID is public and comes from the build environment (.env.local). There is

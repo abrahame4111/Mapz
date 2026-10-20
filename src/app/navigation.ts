@@ -12,6 +12,7 @@ import { FallbackRouting } from '../nav/fallbackRouting';
 import { PhotonProvider } from '../nav/geocode';
 import { NominatimProvider } from '../nav/nominatim';
 import { Navigator } from '../nav/navigator';
+import { OrsProvider } from '../nav/ors';
 import { OsrmProvider } from '../nav/routing';
 import { nextLockState } from '../safety/lockout';
 
@@ -30,9 +31,10 @@ export interface NavigationOptions {
  * left-hand buttons and the arrival popup. Returns a `tick` to call once per frame.
  */
 export function setupNavigation(opts: NavigationOptions): { tick: (panelTakenOver?: boolean) => void; isLocked: () => boolean; toast: (msg: string) => void } {
-  // Routing tries the relay first when configured (the unit can reach Cloudflare but not the OSRM servers' certificates), then the
-  // direct servers. Search has a backup too because the free public servers are sometimes slow or down.
+  // Routing order: OpenRouteService (its certificate works on the head unit), then the optional Cloudflare relay, then the public
+  // OSRM servers (the unit cannot reach those, but laptops can). Search has a backup too: the free public servers are sometimes slow.
   const routingProviders = [
+    ...(config.orsApiKey ? [new OrsProvider(config.orsApiKey)] : []), // works on the head unit (RSA certificate)
     ...(config.routeRelayUrl ? [new OsrmProvider(config.routeRelayUrl, 12000)] : []),
     new OsrmProvider(undefined, 8000),
     new OsrmProvider('https://routing.openstreetmap.de/routed-car', 15000),
