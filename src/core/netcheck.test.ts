@@ -19,7 +19,7 @@ describe('network check', () => {
 
     // no-cors works, the normal (cors) request fails
     const blocked = await checkOne(t, async (_u, init) => { if (init?.mode === 'no-cors') return resp(0); throw new TypeError('Failed to fetch'); }, now);
-    expect(blocked).toMatch(/OK +svc: \d+ms, connects, but the browser blocks reading it \(CORS\)/);
+    expect(blocked).toMatch(/OK +svc: \d+ms, connects, but reading the answer failed/);
   });
 
   it('logs the clock, one line per target, and a finish line', async () => {

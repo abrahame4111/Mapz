@@ -1,3 +1,4 @@
+import { config } from './config';
 import { withTimeout } from '../nav/net';
 
 export interface CheckTarget {
@@ -47,13 +48,20 @@ export async function checkOne(
     const r = await withTimeout(fetchFn(t.url), timeoutMs);
     readable = 'readable, HTTP ' + r.status;
   } catch {
-    readable = 'connects, but the browser blocks reading it (CORS)';
+    readable = 'connects, but reading the answer failed (CORS, rate limit or timeout)';
   }
   return `OK   ${t.name}: ${reachMs}ms, ${readable}`;
 }
 
 /** Runs every check in parallel, logging a line as each finishes, with the unit's clock first (a wrong date breaks HTTPS). */
-export async function runNetworkCheck(log: (line: string) => void, fetchFn?: FetchFn, targets: CheckTarget[] = CHECK_TARGETS): Promise<void> {
+export async function runNetworkCheck(
+  log: (line: string) => void,
+  fetchFn?: FetchFn,
+  targets: CheckTarget[] = [
+    ...(config.routeRelayUrl ? [{ name: 'route RELAY (Cloudflare)', url: config.routeRelayUrl + '/health' }] : []),
+    ...CHECK_TARGETS,
+  ],
+): Promise<void> {
   log('--- network check ---');
   log('clock: ' + new Date().toString());
   log('online flag: ' + String(navigator.onLine));

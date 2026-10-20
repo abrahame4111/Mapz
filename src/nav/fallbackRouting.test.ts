@@ -18,6 +18,9 @@ describe('FallbackRouting', () => {
   it('does not retry a genuine "no route" answer', async () => {
     await expect(new FallbackRouting(fail('No route found'), ok(2)).route(from, from)).rejects.toThrow('No route found');
   });
+  it('walks a longer list in order and skips the dead ones', async () => {
+    expect((await new FallbackRouting(fail('Failed to fetch'), fail('x'), ok(3)).route(from, from)).lengthM).toBe(3);
+  });
   it('reports the first failure when both are down', async () => {
     await expect(new FallbackRouting(fail('Failed to fetch'), fail('other')).route(from, from)).rejects.toThrow('Failed to fetch');
   });

@@ -10,6 +10,8 @@ export const config = {
     lat: Number(env.VITE_START_LAT ?? 59.3293),
     lng: Number(env.VITE_START_LNG ?? 18.0686),
   },
+  /** Optional Cloudflare relay for routing (workers/route-relay). The head unit cannot reach the public OSRM servers directly. */
+  routeRelayUrl: ((env.VITE_ROUTE_RELAY_URL as string | undefined) ?? '').replace(/\/+$/, ''),
   /**
    * Spotify login (lyrics mode). The Client ID is public and comes from the build environment (.env.local). There is
    * deliberately NO client secret anywhere in the app: login uses PKCE, which does not need one.

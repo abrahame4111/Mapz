@@ -1,3 +1,4 @@
+import { config } from '../core/config';
 import { vehicleStore } from '../core/vehicle';
 import type { Simulator } from '../data/simulator';
 import { ArrivalPopup } from '../hud/arrivalPopup';
@@ -29,10 +30,14 @@ export interface NavigationOptions {
  * left-hand buttons and the arrival popup. Returns a `tick` to call once per frame.
  */
 export function setupNavigation(opts: NavigationOptions): { tick: (panelTakenOver?: boolean) => void; isLocked: () => boolean; toast: (msg: string) => void } {
-  // Each service has a backup because the free public servers are sometimes slow or down.
-  const navigator = new Navigator(
-    new FallbackRouting(new OsrmProvider(undefined, 8000), new OsrmProvider('https://routing.openstreetmap.de/routed-car', 15000)),
-  );
+  // Routing tries the relay first when configured (the unit can reach Cloudflare but not the OSRM servers' certificates), then the
+  // direct servers. Search has a backup too because the free public servers are sometimes slow or down.
+  const routingProviders = [
+    ...(config.routeRelayUrl ? [new OsrmProvider(config.routeRelayUrl, 12000)] : []),
+    new OsrmProvider(undefined, 8000),
+    new OsrmProvider('https://routing.openstreetmap.de/routed-car', 15000),
+  ];
+  const navigator = new Navigator(new FallbackRouting(...routingProviders));
   const routeLayer = new RouteLayer(opts.map);
   const panel = new TurnPanel();
   const toastEl = el('toast');
