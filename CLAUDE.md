@@ -1,4 +1,4 @@
-# CLAUDE.md — Polo Minimap (working title: "NFS-Nav")
+# CLAUDE.md — Mapz (Polo head-unit minimap; formerly "Mapz")
 
 Project guide for Claude Code. Read this fully before making changes, and keep it updated as decisions are made.
 
@@ -160,7 +160,7 @@ npm run build        # typecheck + production web build (modern + legacy bundles
 npm test             # unit tests (vitest)
 npm run android:sync # build web + capacitor sync
 npm run android:apk  # build debug APK (needs JDK 17 + Android SDK; android/local.properties sdk.dir)
-npm run pack:usb     # copy APK to ./dist-usb/nfs-nav-build-N.apk (themes not yet)
+npm run pack:usb     # copy APK to ./dist-usb/mapz-build-N.apk (themes not yet)
 npm run build:bump   # increment build-number.txt for a new iteration
 ```
 
@@ -171,12 +171,12 @@ npm run build:bump   # increment build-number.txt for a new iteration
 - [ ] Can the unit join the phone hotspot, and is its browser/WebView WebGL-capable?
 - [ ] Preferred tile provider and budget (free tier vs self-hosted PMTiles)
 - [ ] Routing engine choice for turn-by-turn / route line
-- [ ] App name and branding (avoid trademarked names)
+- [x] App name: **Mapz** (decided 2026-10-20; avoids the Need for Speed trademark). Internal identifiers deliberately keep the old name (app id com.example.nfsnav, localStorage keys nfsnav.*) so existing installs keep their settings and Spotify login
 
 ## 10. Instructions for Claude Code
 
 - **Do not build/send an APK or bump the build number without asking the user first** (they test each one in the car). Verify with typecheck, vitest and the dev server, then ask.
-- **Build numbering:** every APK handed to the head unit gets the next iteration number. `build-number.txt` holds the current one; run `npm run build:bump` before building a new iteration, then `npm run android:apk` and `npm run pack:usb`. The number is the APK versionCode ("build N"), the file name (`dist-usb/nfs-nav-build-N.apk`), and is shown on screen. Build 1 = first APK, 2 = targetSdk 28, 3 = diagnostics, 4 = Chrome 61 legacy bundle + MapLibre 2.4, 5 = AbortController polyfills (map works on the unit), 6 = real GPS (confirmed on the unit), 7 = heading-up map rotation (confirmed smooth on the unit), 8 = pinch zoom + on-screen +/- buttons, 9 = buttons purple (#b066ff) and 30% smaller (50 px), 10 = custom app icon (regenerate with `node tools/icons/make-icons.mjs`; source art is inside that script), 11 = new layout (6 buttons | circular minimap | turn panel), destination search, routing, glowing route + finish flag, turn-by-turn, arrival popup, 12 = arrival popup uses the supplied flag image (borderless, Close button only). Name sent files and captions with the build number.
+- **Build numbering:** every APK handed to the head unit gets the next iteration number. `build-number.txt` holds the current one; run `npm run build:bump` before building a new iteration, then `npm run android:apk` and `npm run pack:usb`. The number is the APK versionCode ("build N"), the file name (`dist-usb/mapz-build-N.apk`), and is shown on screen. Build 1 = first APK, 2 = targetSdk 28, 3 = diagnostics, 4 = Chrome 61 legacy bundle + MapLibre 2.4, 5 = AbortController polyfills (map works on the unit), 6 = real GPS (confirmed on the unit), 7 = heading-up map rotation (confirmed smooth on the unit), 8 = pinch zoom + on-screen +/- buttons, 9 = buttons purple (#b066ff) and 30% smaller (50 px), 10 = custom app icon (regenerate with `node tools/icons/make-icons.mjs`; source art is inside that script), 11 = new layout (6 buttons | circular minimap | turn panel), destination search, routing, glowing route + finish flag, turn-by-turn, arrival popup, 12 = arrival popup uses the supplied flag image (borderless, Close button only). Name sent files and captions with the build number.
 
 - Start every session by reading this file. If a decision changes, update the relevant section.
 - Work in small steps. After each step the app should still run on the laptop with the simulator.

@@ -48,7 +48,7 @@ export class DemoNowPlaying implements NowPlayingSource {
       onChange({
         id: 'demo-neon-drive',
         title: 'Neon Drive (demo)',
-        artist: 'NFS-Nav',
+        artist: 'Mapz',
         album: 'Dev Tracks',
         durationMs: DURATION_MS,
         progressMs,

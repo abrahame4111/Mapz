@@ -1,8 +1,8 @@
-# NFS-Nav
+# Mapz
 
-A stylized, game-inspired **minimap for a car head unit**. NFS-Nav shows a dark, neon-accented vector map with a glowing car marker that follows your position, built as a web app that is packaged as an Android APK. Target hardware is a Blaupunkt Key Largo 970 (Android 9) in a VW Polo, but it runs in any WebGL-capable browser.
+A stylized, game-inspired **minimap for a car head unit**. Mapz shows a dark, neon-accented vector map with a glowing car marker that follows your position, built as a web app that is packaged as an Android APK. Target hardware is a Blaupunkt Key Largo 970 (Android 9) in a VW Polo, but it runs in any WebGL-capable browser.
 
-![NFS-Nav navigating: circular minimap with a neon route, turn-by-turn panel](docs/screenshot-navigation.jpg)
+![Mapz navigating: circular minimap with a neon route, turn-by-turn panel](docs/screenshot-navigation.jpg)
 
 *Navigating (simulator, Stockholm): six buttons on the left, circular neon minimap in the middle, live turn-by-turn on the right.*
 
@@ -12,7 +12,7 @@ A stylized, game-inspired **minimap for a car head unit**. NFS-Nav shows a dark,
 
 > **Status: early development (roadmap step 5 of 11).** The map runs on the head unit. The installed app uses the unit's GPS; the desktop dev server uses a simulator (use `?gps` to try browser geolocation). A debug APK builds and installs on the head unit once its "closed system" option is switched off (see [Known issues](#known-issues)).
 
-<img src="docs/app-icon.png" alt="NFS-Nav app icon" width="96" align="right">
+<img src="docs/app-icon.png" alt="Mapz app icon" width="96" align="right">
 
 ## Features (so far)
 
@@ -51,7 +51,7 @@ Needs JDK 17 and the Android SDK. Create `android/local.properties` with `sdk.di
 
 ```bash
 npm run android:apk   # debug APK: android/app/build/outputs/apk/debug/app-debug.apk
-npm run pack:usb      # copies it to dist-usb/nfs-nav.apk for a USB stick
+npm run pack:usb      # copies it to dist-usb/mapz-build-N.apk for a USB stick
 ```
 
 ## How it works

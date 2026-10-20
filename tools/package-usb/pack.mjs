@@ -1,4 +1,4 @@
-// Copies the debug APK into ./dist-usb/nfs-nav-build-<N>.apk so the folder can be copied to a USB stick.
+// Copies the debug APK into ./dist-usb/mapz-build-<N>.apk so the folder can be copied to a USB stick.
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 
 const apk = 'android/app/build/outputs/apk/debug/app-debug.apk';
@@ -23,7 +23,7 @@ if (statSync(apk).mtimeMs < statSync(buildFile).mtimeMs) {
 }
 mkdirSync('dist-usb', { recursive: true });
 // Remove older APKs so only the current build sits on the stick.
-for (const f of readdirSync('dist-usb')) if (/^nfs-nav.*\.apk$/.test(f)) rmSync('dist-usb/' + f);
-const out = 'dist-usb/nfs-nav-build-' + build + '.apk';
+for (const f of readdirSync('dist-usb')) if (/^(nfs-nav|mapz).*\.apk$/.test(f)) rmSync('dist-usb/' + f);
+const out = 'dist-usb/mapz-build-' + build + '.apk';
 copyFileSync(apk, out);
 console.log('Wrote ' + out);
