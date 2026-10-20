@@ -74,16 +74,13 @@ svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: 
 #search-results .t { font-size: 3.8vh; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #search-results .s { margin-top: 0.4vh; font-size: 2.6vh; color: #99a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* ---------- arrival popup ---------- */
-#arrival { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.82); }
-#arrival-card { width: 62vh; padding: 3vh 3vh 3.4vh; box-sizing: border-box; text-align: center; border-radius: 4vh; border: 2px solid #b066ff; background: linear-gradient(180deg, #14102a, #07060f); box-shadow: 0 0 4vh rgba(122, 60, 255, 0.7), inset 0 0 4vh rgba(122, 60, 255, 0.2); animation: pop 0.35s ease-out; }
-#arrival-flag { height: 34vh; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 0 1.6vh rgba(176, 102, 255, 0.8)); }
-#arrival-flag svg { height: 100%; overflow: visible; }
-.flag-col { animation: wave 1.2s ease-in-out infinite; }
-@keyframes wave { 0%, 100% { transform: translateY(-3.5px); } 50% { transform: translateY(3.5px); } }
-#arrival-title { margin-top: 1vh; font-size: 5.4vh; font-weight: 800; letter-spacing: 0.04em; }
-#arrival-place { margin: 0.8vh 0 3vh; min-height: 3.4vh; font-size: 3vh; color: #aab; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#arrival-close { width: 100%; height: 9vh; border: 2px solid #b066ff; border-radius: 2.6vh; background: rgba(176, 102, 255, 0.18); color: #fff; font-size: 4vh; font-weight: 700; letter-spacing: 0.06em; -webkit-tap-highlight-color: transparent; }
+/* ---------- arrival popup: just the flag and a Close button, no card or border ---------- */
+#arrival { position: absolute; left: 0; top: 0; right: 0; bottom: 0; z-index: 30; display: flex; align-items: center; justify-content: center; background: rgba(0, 0, 0, 0.84); }
+#arrival-card { display: flex; flex-direction: column; align-items: center; animation: pop 0.35s ease-out; }
+#arrival-flag { display: block; height: 66vh; width: auto; margin-bottom: 1vh; transform-origin: 6% 92%; animation: sway 3.6s ease-in-out infinite; }
+/* A slow, small sway from the foot of the pole. Gentle on purpose: no flashing or fast motion. */
+@keyframes sway { 0%, 100% { transform: rotate(-1.6deg); } 50% { transform: rotate(1.6deg); } }
+#arrival-close { width: 34vh; height: 9.4vh; border: 2px solid #b066ff; border-radius: 2.8vh; background: rgba(176, 102, 255, 0.18); color: #fff; font-size: 4.2vh; font-weight: 700; letter-spacing: 0.08em; box-shadow: 0 0 2.4vh rgba(122, 60, 255, 0.55); -webkit-tap-highlight-color: transparent; }
 #arrival-close:active { background: rgba(176, 102, 255, 0.5); }
 
 /* ---------- small overlays ---------- */

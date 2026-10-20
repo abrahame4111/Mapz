@@ -1,12 +1,13 @@
-import { wavingFlagSvg } from './flag';
+import flagUrl from '../assets/arrival-flag.png';
 
 const el = (id: string): HTMLElement => document.getElementById(id)!;
 
-/** "You have arrived" popup with a waving black-and-white flag and a Close button underneath. */
+/** Arrival popup: the neon flag artwork with a Close button right below it. Nothing else. */
 export class ArrivalPopup {
   private readonly root = el('arrival');
-  private built = false;
+  private loaded = false;
 
+  /** `onClose` runs after the popup hides; the caller clears the route from the map there. */
   constructor(onClose: () => void) {
     el('arrival-close').addEventListener('click', () => {
       this.hide();
@@ -18,12 +19,11 @@ export class ArrivalPopup {
     return !this.root.hidden;
   }
 
-  show(placeTitle: string): void {
-    if (!this.built) {
-      el('arrival-flag').innerHTML = wavingFlagSvg(); // built once; the animation is pure CSS
-      this.built = true;
+  show(): void {
+    if (!this.loaded) {
+      (el('arrival-flag') as HTMLImageElement).src = flagUrl; // set once; the sway animation is pure CSS
+      this.loaded = true;
     }
-    el('arrival-place').textContent = placeTitle;
     this.root.hidden = false;
   }
 

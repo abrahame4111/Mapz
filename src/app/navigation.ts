@@ -80,7 +80,7 @@ export function setupNavigation(opts: NavigationOptions): { tick: () => void } {
     if (s.destination !== prev.destination) routeLayer.setDestination(s.destination ?? null);
     if (s.progress && s.route) routeLayer.setProgress(s.progress.distAlongM);
     stopBtn.disabled = s.status === 'idle';
-    if (s.status === 'arrived' && prev.status !== 'arrived') arrival.show(s.destination?.title ?? '');
+    if (s.status === 'arrived' && prev.status !== 'arrived') arrival.show();
     if (s.status === 'error' && prev.status !== 'error') {
       toast(s.error ?? 'Route unavailable');
       setTimeout(() => {
