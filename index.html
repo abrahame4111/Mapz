@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Mapz</title>
+    <!--
+      Critical CSS, inline on purpose: the app's real stylesheet is loaded by its JavaScript, which takes a few seconds
+      on the head unit. Until then the page would show raw, unstyled HTML (a giant black magnifier circle, stray text).
+      So: dark from the first paint, everything hidden except the boot diagnostics, then <body class="ready"> (set by
+      the app once its styles are loaded) reveals the interface.
+    -->
+    <style>
+      html, body { margin: 0; height: 100%; background: #07080d; overflow: hidden; }
+      body:not(.ready) > *:not(#diag) { display: none !important; }
+      body:not(.ready)::before { content: 'Mapz'; position: absolute; left: 0; right: 0; top: 46%; text-align: center; font: 700 7vh/1 Roboto, 'Segoe UI', Arial, sans-serif; letter-spacing: 0.08em; color: #3a3a40; }
+    </style>
   </head>
   <body>
     <div id="app">

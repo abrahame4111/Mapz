@@ -45,6 +45,7 @@ function describeWebGL(): string {
 
 function boot(): void {
   dw.__appStarted = true;
+  document.body.classList.add('ready'); // reveal the interface (index.html hides it until now; our CSS is loaded by this point)
   diag('build ' + __BUILD_NUMBER__);
   diag(describeWebGL());
   if (!hasWebGL()) {
