@@ -73,8 +73,9 @@ body.full .maplibregl-ctrl-bottom-right { left: 90px; right: auto; }
 #lyr-title { font-size: 3vh; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #lyr-artist { margin-top: 0.4vh; font-size: 2.4vh; color: rgba(255, 255, 255, 0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #lyr-view { position: relative; flex: 1; margin-top: 1.6vh; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 82%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 82%, transparent 100%); }
-#lyr-lines { transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); padding-top: 3vh; }
-.lyr-line { margin: 0 0 2.4vh; font-size: 4.1vh; line-height: 1.22; font-weight: 800; letter-spacing: -0.01em; color: rgba(255, 255, 255, 0.5); transform-origin: left center; transition: color 0.4s ease, transform 0.4s ease; }
+/* Side padding keeps the enlarged current line off the card edge; the big bottom padding lets the last lines scroll up into view instead of being cut off by the fade. */
+#lyr-lines { transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); padding: 3vh 2.4vh 22vh 1.6vh; }
+.lyr-line { margin: 0 0 2.4vh; overflow-wrap: break-word; word-wrap: break-word; font-size: 4.1vh; line-height: 1.22; font-weight: 800; letter-spacing: -0.01em; color: rgba(255, 255, 255, 0.5); transform-origin: left center; transition: color 0.4s ease, transform 0.4s ease; }
 .lyr-line.past { color: rgba(255, 255, 255, 0.26); }
 .lyr-line.now { color: #fff; transform: scale(1.04); text-shadow: 0 0 2.2vh rgba(176, 102, 255, 0.6); }
 .lyr-line.plain { font-size: 3.2vh; font-weight: 700; }
