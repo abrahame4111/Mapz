@@ -16,6 +16,13 @@ export function formatDistance(m: number): DistanceText {
   return { value: km < 10 ? km.toFixed(1) : String(Math.round(km)), unit: 'km' };
 }
 
+/** Distance still to go to the destination: whole metres rounded to 10 m under 1 km, then km with one decimal up to 100 km. */
+export function formatRemaining(m: number): DistanceText {
+  if (m < 1000) return { value: String(Math.max(0, Math.round(m / 10) * 10)), unit: 'm' };
+  const km = m / 1000;
+  return { value: km < 100 ? km.toFixed(1) : String(Math.round(km)), unit: 'km' };
+}
+
 const LABELS: Record<TurnKind, string> = {
   straight: 'Continue straight',
   'slight-right': 'Bear right',

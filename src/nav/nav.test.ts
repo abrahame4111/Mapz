@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { destination, type LatLng } from '../core/geo';
 import { buildPath, pathAt } from '../data/path';
-import { formatDistance, turnLabel } from './format';
+import { formatDistance, formatRemaining, turnLabel } from './format';
 import { parsePhoton } from './geocode';
 import { Navigator } from './navigator';
 import { computeProgress, projectOnPath } from './progress';
@@ -191,5 +191,14 @@ describe('Navigator', () => {
     });
     await n.start(dest, start);
     expect(n.store.get()).toMatchObject({ status: 'error', error: 'offline' });
+  });
+});
+
+describe('formatRemaining', () => {
+  it('counts down in 10 m steps, then km with one decimal', () => {
+    expect(formatRemaining(243)).toEqual({ value: '240', unit: 'm' });
+    expect(formatRemaining(4)).toEqual({ value: '0', unit: 'm' });
+    expect(formatRemaining(12345)).toEqual({ value: '12.3', unit: 'km' });
+    expect(formatRemaining(250000)).toEqual({ value: '250', unit: 'km' });
   });
 });

@@ -33,7 +33,10 @@ svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: 
 /* Full-screen map: the map fills the screen behind the buttons and panel, the circle mask and ring go away, and the
    car stays where the minimap centre is (camera padding, see main.ts). */
 body.full #map-box { position: fixed; z-index: 0; }
-body.full #mask, body.full #ring { display: none; }
+body.full #mask, body.full #ring, body.full #km-left { display: none; }
+/* Distance still to go, on the bottom of the minimap circle (minimap mode only; the turn panel already shows the next turn). */
+#km-left { position: absolute; z-index: 2; left: 50%; bottom: 7%; -webkit-transform: translateX(-50%); transform: translateX(-50%); padding: 0.4vh 2.2vh; white-space: nowrap; font-size: 4.6vh; line-height: 1.2; font-weight: 800; color: #fff; border: 1px solid rgba(214, 190, 255, 0.45); border-radius: 2.6vh; background: rgba(7, 8, 13, 0.78); text-shadow: 0 0 1.6vh rgba(176, 102, 255, 0.7); }
+#km-left span { margin-left: 0.8vh; font-size: 3.2vh; font-weight: 700; color: #b066ff; }
 /* The right panel would cover the default bottom-right attribution, which must stay visible. */
 body.full .maplibregl-ctrl-bottom-right { left: 90px; right: auto; }
 

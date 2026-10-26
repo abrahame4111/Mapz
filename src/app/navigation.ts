@@ -6,7 +6,7 @@ import { SearchPanel } from '../hud/searchPanel';
 import { TurnPanel, type PanelModel } from '../hud/turnPanel';
 import type { MapType } from '../map/maplibre';
 import { RouteLayer } from '../map/routeLayer';
-import { formatDistance } from '../nav/format';
+import { formatDistance, formatRemaining } from '../nav/format';
 import { FallbackGeocoder } from '../nav/fallbackGeocoder';
 import { FallbackRouting } from '../nav/fallbackRouting';
 import { PhotonProvider } from '../nav/geocode';
@@ -46,6 +46,8 @@ export function setupNavigation(opts: NavigationOptions): { tick: (panelTakenOve
   const routeLayer = new RouteLayer(opts.map);
   const panel = new TurnPanel();
   const toastEl = el('toast');
+  const kmLeft = el('km-left');
+  let kmShown = '';
   let toastTimer: ReturnType<typeof setTimeout> | undefined;
   const toast = (msg: string): void => {
     toastEl.textContent = msg;
@@ -142,6 +144,14 @@ export function setupNavigation(opts: NavigationOptions): { tick: (panelTakenOve
           search.close();
           toast('Search closed: car is moving');
         }
+      }
+      const ns = navigator.store.get();
+      const left = ns.status === 'active' && ns.progress ? formatRemaining(ns.progress.remainingM) : undefined;
+      const kmText = left ? left.value + ' ' + left.unit : '';
+      if (kmText !== kmShown) {
+        kmShown = kmText;
+        kmLeft.hidden = !left;
+        kmLeft.innerHTML = left ? left.value + '<span>' + left.unit + '</span>' : '';
       }
       panel.render(panelTakenOver ? { mode: 'hidden' } : model());
     },
