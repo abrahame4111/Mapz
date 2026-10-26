@@ -4,6 +4,8 @@ import { withTimeout } from '../nav/net';
 export interface CheckTarget {
   name: string;
   url: string;
+  /** Set when this host is known to be unreachable from the head unit: a failure is then reported as expected, not as a fault. */
+  knownUnreachable?: string;
 }
 
 /**
@@ -15,8 +17,8 @@ export const CHECK_TARGETS: CheckTarget[] = [
   { name: 'search Photon (LetsEncrypt YR)', url: 'https://photon.komoot.io/api/?q=Bengaluru&limit=1' },
   { name: 'search Nominatim (LetsEncrypt YR)', url: 'https://nominatim.openstreetmap.org/search?q=Bengaluru&format=json&limit=1' },
   { name: 'route ORS (LetsEncrypt YR)', url: 'https://api.openrouteservice.org/v2/health' },
-  { name: 'route OSRM (LetsEncrypt YE)', url: 'https://router.project-osrm.org/route/v1/driving/77.74,13.06;77.75,13.07?overview=false' },
-  { name: 'route FOSSGIS (LetsEncrypt YE)', url: 'https://routing.openstreetmap.de/routed-car/route/v1/driving/77.74,13.06;77.75,13.07?overview=false' },
+  { name: 'route OSRM (LetsEncrypt YE)', url: 'https://router.project-osrm.org/route/v1/driving/77.74,13.06;77.75,13.07?overview=false', knownUnreachable: 'unit cannot use this certificate type; routing goes through ORS / the relay instead' },
+  { name: 'route FOSSGIS (LetsEncrypt YE)', url: 'https://routing.openstreetmap.de/routed-car/route/v1/driving/77.74,13.06;77.75,13.07?overview=false', knownUnreachable: 'unit cannot use this certificate type; routing goes through ORS / the relay instead' },
   { name: 'lyrics LRCLIB', url: 'https://lrclib.net/api/search?q=a' },
   { name: 'Spotify login (CORS n/a)', url: 'https://accounts.spotify.com/' },
   { name: 'Spotify API (CORS n/a)', url: 'https://api.spotify.com/v1/' },
@@ -41,6 +43,7 @@ export async function checkOne(
   try {
     await withTimeout(fetchFn(t.url, { mode: 'no-cors' }), timeoutMs);
   } catch (e) {
+    if (t.knownUnreachable) return `SKIP ${t.name}: ${e instanceof Error ? e.message : String(e)}. Expected: ${t.knownUnreachable}`;
     return `FAIL ${t.name}: ${e instanceof Error ? e.message : String(e)} after ${Math.round(now() - t0)}ms`;
   }
   const reachMs = Math.round(now() - t0);
