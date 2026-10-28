@@ -23,7 +23,7 @@ class FakeKv {
 }
 
 const UNIT = 'https://localhost';
-const PHONE = 'https://queueit.live';
+const PHONE = 'https://mapz-b9u.pages.dev';
 const CHALLENGE = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM'; // 43 chars
 const CODE = 'K7M2QX';
 

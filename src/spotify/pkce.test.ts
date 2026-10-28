@@ -29,13 +29,13 @@ describe('PKCE', () => {
 
   it('builds the authorize URL with every required parameter', () => {
     const url = new URL(
-      buildAuthorizeUrl({ clientId: 'CID', redirectUri: 'https://queueit.live/api/spotify/callback', challenge: 'CH', state: 'ST', scope: 'user-read-currently-playing' }),
+      buildAuthorizeUrl({ clientId: 'CID', redirectUri: 'https://mapz-b9u.pages.dev/api/spotify/callback', challenge: 'CH', state: 'ST', scope: 'user-read-currently-playing' }),
     );
     expect(url.origin + url.pathname).toBe('https://accounts.spotify.com/authorize');
     const q = url.searchParams;
     expect(q.get('client_id')).toBe('CID');
     expect(q.get('response_type')).toBe('code');
-    expect(q.get('redirect_uri')).toBe('https://queueit.live/api/spotify/callback');
+    expect(q.get('redirect_uri')).toBe('https://mapz-b9u.pages.dev/api/spotify/callback');
     expect(q.get('code_challenge_method')).toBe('S256');
     expect(q.get('code_challenge')).toBe('CH');
     expect(q.get('state')).toBe('ST');

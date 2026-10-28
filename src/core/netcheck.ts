@@ -22,7 +22,7 @@ export const CHECK_TARGETS: CheckTarget[] = [
   { name: 'lyrics LRCLIB', url: 'https://lrclib.net/api/search?q=a' },
   { name: 'Spotify login (CORS n/a)', url: 'https://accounts.spotify.com/' },
   { name: 'Spotify API (CORS n/a)', url: 'https://api.spotify.com/v1/' },
-  { name: 'queueit.live (LetsEncrypt YR)', url: 'https://queueit.live/' },
+  { name: 'Mapz relay (Cloudflare)', url: 'https://mapz-b9u.pages.dev/' },
   { name: 'GitHub (DigiCert/Sectigo)', url: 'https://api.github.com/' },
   { name: 'Google (CORS n/a)', url: 'https://www.google.com/generate_204' },
 ];

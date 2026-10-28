@@ -1,7 +1,7 @@
 import { challengeFor, randomString } from './pkce';
 
 // Phone-based Spotify login. The head unit's old browser cannot use Spotify's login page, so the unit shows a short
-// code, the user logs in on their phone (queueit.live/pair), and a small relay (functions/api/pair) hands the one-time
+// code, the user logs in on their phone (mapz-b9u.pages.dev/pair), and a small relay (functions/api/pair) hands the one-time
 // authorization code back. The PKCE verifier never leaves the unit, so the relay only ever sees values that are useless
 // on their own; the unit finishes the login with Spotify itself.
 

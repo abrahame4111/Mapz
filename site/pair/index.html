@@ -20,7 +20,7 @@
 <body>
 <main>
   <h1>Connect Spotify to Mapz</h1>
-  <p>Type the 6-character code shown on your car screen, then log in to Spotify.</p>
+  <p>Scan the QR code on your car screen with your camera. Or type the 6-character code shown there.</p>
   <form id="f" autocomplete="off">
     <input id="code" maxlength="6" inputmode="text" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="ABC123" aria-label="Code from the car screen">
     <button id="go" type="submit">Continue</button>
@@ -32,7 +32,7 @@
 (function () {
   // Spotify app settings. The Client ID is public (it is in every Spotify login link). There is no secret here.
   var CLIENT_ID = 'f50dc62b9eab4292a2b0c48992ef153f';
-  var REDIRECT_URI = 'https://queueit.live/api/spotify/callback';
+  var REDIRECT_URI = 'https://mapz-b9u.pages.dev/api/spotify/callback';
   var SCOPE = 'user-read-currently-playing';
 
   var form = document.getElementById('f');
@@ -41,6 +41,7 @@
   var msg = document.getElementById('msg');
   var fromLink = new URLSearchParams(location.search).get('code');
   if (fromLink) input.value = fromLink.toUpperCase().slice(0, 6);
+  var scanned = !!fromLink;
 
   function b64url(s) { return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
   function say(t) { msg.textContent = t; }
@@ -56,7 +57,7 @@
     });
   }
 
-  form.addEventListener('submit', function (e) {
+  function submit(e) {
     e.preventDefault();
     var code = input.value.trim().toUpperCase();
     if (!window.MAPZ_RELAY) return say('This page is not set up yet (no relay address).');
@@ -75,7 +76,10 @@
       go.disabled = false;
       say(err && err.message ? err.message : 'Could not reach the service. Check your connection.');
     });
-  });
+  }
+  form.addEventListener("submit", submit);
+  // Opened from the QR code on the car screen: the code is already filled in, so carry on without another tap.
+  if (scanned && /^[A-HJ-NP-Z2-9]{6}$/.test(input.value)) submit({ preventDefault: function () {} });
 })();
 </script>
 </body>

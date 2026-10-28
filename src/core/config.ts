@@ -23,7 +23,7 @@ export const config = {
    */
   spotify: {
     clientId: (env.VITE_SPOTIFY_CLIENT_ID as string | undefined) ?? '',
-    redirectUri: (env.VITE_SPOTIFY_REDIRECT_URI as string | undefined) ?? 'https://queueit.live/api/spotify/callback',
+    redirectUri: (env.VITE_SPOTIFY_REDIRECT_URI as string | undefined) ?? 'https://mapz-b9u.pages.dev/api/spotify/callback',
     scope: 'user-read-currently-playing',
   },
   map: { zoom: 16, minZoom: 10, maxZoom: 19 },

@@ -12,7 +12,7 @@
 // the unit; the unit does the final token exchange with Spotify itself. No tokens and no passwords ever pass through here.
 
 const UNIT_ORIGINS = ['https://localhost', 'http://localhost:5173', 'http://127.0.0.1:5173'];
-const PHONE_ORIGINS = ['https://queueit.live', 'https://www.queueit.live'];
+const PHONE_ORIGINS = ['https://mapz-b9u.pages.dev'];
 
 // Which origins may call which action.
 const ACTIONS = {

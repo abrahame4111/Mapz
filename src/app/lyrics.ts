@@ -1,6 +1,7 @@
 import { LyricsView } from '../hud/lyricsView';
 import { positionMs } from '../lyrics/lrc';
 import type { PairResult } from '../spotify/pairing';
+import { pairUrl, qrSvg } from '../spotify/qr';
 import type { LyricsProvider, NowPlaying, NowPlayingSource, SourceProblem } from '../lyrics/types';
 
 export interface LyricsOptions {
@@ -33,6 +34,7 @@ export function setupLyrics(opts: LyricsOptions): {
   const connectBtn = el('lyr-connect');
   const pairBox = el('lyr-pair');
   const pairCode = el('lyr-pair-code');
+  const pairQr = el('lyr-pair-qr');
   let active = false;
   let np: NowPlaying | null = null;
   let loadedId: string | undefined;
@@ -94,6 +96,7 @@ export function setupLyrics(opts: LyricsOptions): {
     void pairing
       .run((code) => {
         pairCode.textContent = code;
+        pairQr.innerHTML = qrSvg(pairUrl(code));
         showPairing(true);
       })
       .then((res) => {
