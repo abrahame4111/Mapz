@@ -1,7 +1,7 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './style.css';
 import './polyfills'; // must stay before anything that touches the missing APIs
-import { AttributionControl, Map as MlMap } from './map/maplibre';
+import { Map as MlMap } from './map/maplibre';
 import type { MapType } from './map/maplibre';
 import { config } from './core/config';
 import { vehicleStore } from './core/vehicle';
@@ -77,7 +77,7 @@ function boot(): void {
     doubleClickZoom: false,
     touchZoomRotate: false, // enabled below with a screen-centre anchor (maplibre 2.x option types are boolean only)
     scrollZoom: false,
-    attributionControl: false, // added below as a compact control (maplibre 2.x API)
+    attributionControl: false, // credit is shown in the diagnostics panel instead (see MAP_CREDIT)
     fadeDuration: 0,
   });
 
@@ -109,8 +109,9 @@ function boot(): void {
   });
   window.addEventListener('resize', applyMapMode);
 
-  // Attribution is required by the OSM/OpenFreeMap licences; keep it visible.
-  map.addControl(new AttributionControl({ compact: true }));
+  // The map credit is not drawn on the map (it spoils the look). The OSM/OpenFreeMap licences still require it, so it is
+  // shown in the panel that opens when the small build label is tapped (see __onDiagOpen below).
+  const MAP_CREDIT = 'Map data © OpenStreetMap contributors, © OpenMapTiles, tiles by OpenFreeMap';
 
   map.on('error', (e) => {
     console.error('[map]', e.error?.message ?? e);
@@ -127,7 +128,10 @@ function boot(): void {
   const interp = new PoseInterpolator();
   const debug = document.getElementById('debug')!;
   // Opening the diagnostics panel (tap the build label) also tests which online services the unit can reach.
-  dw.__onDiagOpen = () => void runNetworkCheck(diag);
+  dw.__onDiagOpen = () => {
+    diag(MAP_CREDIT);
+    void runNetworkCheck(diag);
+  };
   debug.addEventListener('click', () => dw.__diagToggle?.()); // tap the small build label to open/close the diagnostics panel
   const banner = document.getElementById('banner')!;
 
