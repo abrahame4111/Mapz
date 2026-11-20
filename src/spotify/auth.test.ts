@@ -109,4 +109,43 @@ describe('SpotifyAuth', () => {
     expect(await auth.getAccessToken()).toBeUndefined(); // revoked
     expect(auth.loggedIn).toBe(false);
   });
+
+  it('keeps the login when a refresh fails for a temporary reason (offline, Spotify 5xx / 429)', async () => {
+    let now = 0;
+    let mode: 'ok' | 'offline' | '503' | '429' = 'ok';
+    const fetchFn = (async () => {
+      if (mode === 'offline') throw new TypeError('Failed to fetch');
+      if (mode === '503') return { ok: false, status: 503, json: async () => ({}) } as Response;
+      if (mode === '429') return { ok: false, status: 429, json: async () => ({}) } as Response;
+      return { ok: true, status: 200, json: async () => ({ access_token: 'AT', refresh_token: 'RT', expires_in: 3600 }) } as Response;
+    }) as unknown as typeof fetch;
+    const auth = new SpotifyAuth(CFG, memoryStore(), fetchFn, () => now);
+    await auth.handleCallback(await startLogin(auth));
+    now = 3_600_000; // token expired: every getAccessToken now tries to refresh
+    for (const m of ['offline', '503', '429'] as const) {
+      mode = m;
+      await expect(auth.getAccessToken()).rejects.toBeDefined(); // reported to the caller, not swallowed
+      expect(auth.loggedIn).toBe(true); // ...but still logged in
+    }
+    mode = 'ok';
+    expect(await auth.getAccessToken()).toBe('AT'); // and it recovers by itself
+  });
+
+  it("shows Spotify's own reason for a refused request", async () => {
+    const sp = fakeSpotify([{ status: 400, json: { error: 'invalid_grant', error_description: 'Invalid redirect URI' } }]);
+    const auth = new SpotifyAuth(CFG, memoryStore(), sp.fetchFn);
+    await expect(auth.exchangeCode('CODE', 'VERIFIER')).rejects.toThrow('Spotify login failed (400: invalid_grant: Invalid redirect URI)');
+  });
+
+  it('expireAccessToken keeps the refresh token but forces the next call to refresh', async () => {
+    const sp = fakeSpotify([
+      { json: { access_token: 'AT1', refresh_token: 'RT1', expires_in: 3600 } },
+      { json: { access_token: 'AT2', expires_in: 3600 } },
+    ]);
+    const auth = new SpotifyAuth(CFG, memoryStore(), sp.fetchFn, () => 0);
+    await auth.handleCallback(await startLogin(auth));
+    auth.expireAccessToken();
+    expect(await auth.getAccessToken()).toBe('AT2');
+    expect(sp.calls[1]!.body.get('refresh_token')).toBe('RT1');
+  });
 });

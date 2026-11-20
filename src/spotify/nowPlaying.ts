@@ -64,7 +64,14 @@ export class SpotifyNowPlaying implements NowPlayingSource {
         if (!token) {
           onProblem?.('needs-login');
         } else {
-          const res = await this.fetchFn(ENDPOINT, { headers: { Authorization: 'Bearer ' + token } });
+          let res = await this.fetchFn(ENDPOINT, { headers: { Authorization: 'Bearer ' + token } });
+          if (res.status === 401) {
+            // The access token was refused (expired early, clock skew). Get a fresh one from the refresh token and retry
+            // once; only a second 401 means the login really is gone. (It used to log out on the first 401.)
+            this.auth.expireAccessToken();
+            const fresh = await this.auth.getAccessToken();
+            if (fresh) res = await this.fetchFn(ENDPOINT, { headers: { Authorization: 'Bearer ' + fresh } });
+          }
           const at = this.clock();
           if (res.status === 204) {
             onChange(null);

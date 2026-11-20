@@ -183,6 +183,7 @@ npm run build:bump   # increment build-number.txt for a new iteration
 
 - Phone pairing and the Spotify return page live at https://mapz-b9u.pages.dev (Cloudflare Pages), NOT queueit.live (that domain is a different site). Register https://mapz-b9u.pages.dev/api/spotify/callback in the Spotify dashboard.
 - Spotify login on the unit is done by phone pairing (docs/spotify-pairing.md; needs the Cloudflare Pages relay + KV `PAIR`, address in VITE_RELAY_URL and site/relay-config.js). Not built into an APK yet.
+- **Spotify login lifetime (2026-11-20):** a failed token refresh only ends the login when Spotify clearly refuses it (HTTP 400/401, e.g. invalid_grant). Offline, 429 and 5xx keep the saved login and show "can't reach Spotify"; a 401 on the now-playing call first forces one refresh and retry. Before this, any failure (even a dropped hotspot) wiped the tokens, which forced a new phone pairing. Login errors now include Spotify's own reason, e.g. "(400: invalid_grant: Invalid redirect URI)". Needs a new APK to reach the unit (the unit was still on a pre-move build that shows queueit.live/pair and uses the old queueit.live redirect URI).
 - Start every session by reading this file. If a decision changes, update the relevant section.
 - Work in small steps. After each step the app should still run on the laptop with the simulator.
 - Prefer the simplest approach that works on a weak device. Ask before adding a dependency over ~50 KB gzipped.

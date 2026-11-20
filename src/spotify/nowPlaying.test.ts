@@ -39,9 +39,41 @@ describe('SpotifyNowPlaying', () => {
 
   const authWith = (token: string | undefined) => {
     let loggedOut = false;
-    const auth = { getAccessToken: async () => (loggedOut ? undefined : token), logout: () => void (loggedOut = true) } as unknown as SpotifyAuth;
+    const auth = {
+      getAccessToken: async () => (loggedOut ? undefined : token),
+      expireAccessToken: () => {},
+      logout: () => void (loggedOut = true),
+    } as unknown as SpotifyAuth;
     return auth;
   };
+
+  it('retries once with a fresh token on 401 and keeps the login if that works', async () => {
+    const replies = [reply(401), reply(200, TRACK)];
+    const sent: string[] = [];
+    let expired = 0;
+    let token = 'OLD';
+    const auth = {
+      getAccessToken: async () => token,
+      expireAccessToken: () => {
+        expired++;
+        token = 'NEW';
+      },
+      logout: () => {
+        throw new Error('must not log out');
+      },
+    } as unknown as SpotifyAuth;
+    const fetchFn = (async (_u: string, init: { headers: { Authorization: string } }) => {
+      sent.push(init.headers.Authorization);
+      return replies.shift()!;
+    }) as unknown as typeof fetch;
+    const seen: Array<NowPlaying | null> = [];
+    const src = new SpotifyNowPlaying(auth, fetchFn, () => 1);
+    src.start((np) => seen.push(np));
+    await vi.waitFor(() => expect(seen).toHaveLength(1));
+    src.stop();
+    expect(expired).toBe(1);
+    expect(sent).toEqual(['Bearer OLD', 'Bearer NEW']);
+  });
 
   it('reports tracks, nothing-playing, and keeps polling', async () => {
     vi.useFakeTimers();

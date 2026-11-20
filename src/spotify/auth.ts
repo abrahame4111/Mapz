@@ -131,10 +131,21 @@ export class SpotifyAuth {
     try {
       await this.requestTokens({ grant_type: 'refresh_token', refresh_token: t.refreshToken }, t.refreshToken);
       return this.readTokens()?.accessToken;
-    } catch {
-      this.logout(); // revoked or expired for good: ask the user to log in again
-      return undefined;
+    } catch (e) {
+      // Only a clear "no" from Spotify (revoked / invalid grant) ends the login. A dropped hotspot, a timeout or a Spotify
+      // outage must NOT wipe it: the unit would then need a fresh phone pairing every time the connection blips.
+      if ((e as { permanent?: boolean }).permanent) {
+        this.logout();
+        return undefined;
+      }
+      throw e; // the caller reports "can't reach Spotify" and tries again on the next poll
     }
+  }
+
+  /** Marks the access token as used up (e.g. Spotify answered 401) while keeping the refresh token, so the next call refreshes. */
+  expireAccessToken(): void {
+    const t = this.readTokens();
+    if (t) this.store.set(K_TOKENS, JSON.stringify({ ...t, expiresAt: 0 }));
   }
 
   logout(): void {
@@ -161,7 +172,20 @@ export class SpotifyAuth {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: form,
     });
-    if (!res.ok) throw new Error('Spotify login failed (' + res.status + ')');
+    if (!res.ok) {
+      // Spotify explains a refusal in the body (e.g. invalid_grant + "Invalid redirect URI"). Show it: a bare "(400)" cannot be debugged on the unit.
+      let reason = '';
+      try {
+        const body = (await res.json()) as { error?: string; error_description?: string } | undefined;
+        reason = [body?.error, body?.error_description].filter(Boolean).join(': ');
+      } catch {
+        // body was not JSON: the status alone will do
+      }
+      // Plain Error + flag (not a subclass): subclassing Error breaks instanceof in the old Chrome 61 legacy build.
+      const err = new Error('Spotify login failed (' + res.status + (reason ? ': ' + reason : '') + ')') as Error & { permanent?: boolean };
+      err.permanent = res.status === 400 || res.status === 401; // 429 / 5xx / network errors are temporary
+      throw err;
+    }
     const j = (await res.json()) as { access_token?: string; refresh_token?: string; expires_in?: number };
     const refreshToken = j.refresh_token ?? keepRefresh; // a refresh response may omit it: keep the old one
     if (!j.access_token || !refreshToken) throw new Error('Spotify sent an incomplete login response');
