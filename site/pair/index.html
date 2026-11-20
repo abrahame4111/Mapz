@@ -53,7 +53,7 @@
       if (r.status === 404 && triesLeft > 0) {
         return new Promise(function (res) { setTimeout(res, 2000); }).then(function () { return lookup(code, triesLeft - 1); });
       }
-      throw new Error(r.status === 404 ? 'That code was not found, or it has expired. Press Connect Spotify on the car screen again.' : 'The service had a problem. Try again.');
+      throw new Error(r.status === 404 ? 'That code was not found, or it has expired. Press Connect Spotify on the car screen again.' : 'The service had a problem (error ' + r.status + '). Try again.');
     });
   }
 

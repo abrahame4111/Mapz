@@ -56,6 +56,16 @@ describe('pairing relay', () => {
     expect(kv.data.size).toBe(0);
   });
 
+  it('lets the phone page read info with a same-origin GET (browsers send no Origin header)', async () => {
+    const kv = new FakeKv();
+    await call(kv, 'start', UNIT, { method: 'POST', body: { code: CODE, challenge: CHALLENGE } });
+    const url = `${PHONE}/api/pair/info?code=${CODE}`;
+    const mk = (headers: Record<string, string>) => pair({ request: new Request(url, { headers }), env: { PAIR: kv }, params: { action: 'info' } });
+    expect(await (await mk({})).json()).toEqual({ challenge: CHALLENGE });
+    expect((await mk({ 'Sec-Fetch-Site': 'same-origin' })).status).toBe(200);
+    expect((await mk({ 'Sec-Fetch-Site': 'cross-site' })).status).toBe(403);
+  });
+
   it('only lets each side call its own actions, from its own origin', async () => {
     const kv = new FakeKv();
     expect((await call(kv, 'start', undefined, { method: 'POST', body: { code: CODE, challenge: CHALLENGE } })).status).toBe(403);

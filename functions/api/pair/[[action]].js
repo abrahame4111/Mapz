@@ -44,7 +44,15 @@ function json(data, status, origin) {
 }
 
 export async function onRequest({ request, env, params }) {
-  const origin = request.headers.get('Origin') || '';
+  let origin = request.headers.get('Origin') || '';
+  // Browsers do NOT send an Origin header on a same-origin GET. The phone page (mapz-b9u.pages.dev) calls /api/pair/info
+  // from its own origin, so without this the relay answered 403 and the page showed "The service had a problem".
+  // A cross-origin read always carries Origin, and a no-cors request can't read the reply, so treating a GET without
+  // Origin as same-origin is safe. Sec-Fetch-Site (when the browser sends it) must not say cross-site / same-site.
+  if (!origin && request.method === 'GET') {
+    const site = request.headers.get('Sec-Fetch-Site');
+    if (!site || site === 'same-origin' || site === 'none') origin = new URL(request.url).origin;
+  }
   const action = Array.isArray(params.action) ? params.action[0] : params.action;
   const spec = ACTIONS[action];
   if (!spec || !spec.origins.includes(origin)) return new Response('Forbidden', { status: 403 });
